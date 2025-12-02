@@ -24,7 +24,11 @@ interface UserFormData {
   roleId: string;
 }
 
-export default function AdminUsersView() {
+interface Props {
+  embedded?: boolean;
+}
+
+export default function AdminUsersView({ embedded = false }: Props) {
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
@@ -156,24 +160,38 @@ export default function AdminUsersView() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">Gestión de Usuarios</h1>
-              <p className="text-sm text-gray-500 mt-1">Administra los usuarios del portal empresarial</p>
+    <div className={embedded ? '' : "min-h-screen bg-background p-6"}>
+      <div className={embedded ? '' : "max-w-7xl mx-auto"}>
+        {!embedded && (
+          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-bold text-secondary">Gestión de Usuarios</h1>
+                <p className="text-sm text-gray-500 mt-1">Administra los usuarios del portal empresarial</p>
+              </div>
+              <button
+                onClick={() => handleOpenModal()}
+                className="bg-primary text-white px-5 py-2.5 rounded-lg hover:opacity-90 transition font-medium shadow-sm"
+              >
+                + Nuevo Usuario
+              </button>
             </div>
+          </div>
+        )}
+
+        {embedded && (
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold text-secondary">Lista de Usuarios</h2>
             <button
               onClick={() => handleOpenModal()}
-              className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition font-medium shadow-sm"
+              className="bg-primary text-white px-4 py-2 rounded-lg hover:opacity-90 transition font-medium shadow-sm text-sm"
             >
               + Nuevo Usuario
             </button>
           </div>
-        </div>
+        )}
 
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className={`${!embedded ? 'bg-white rounded-lg shadow-sm' : ''} overflow-hidden`}>
           <table className="min-w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -199,7 +217,7 @@ export default function AdminUsersView() {
                 <tr key={user.id} className="hover:bg-gray-50 transition">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-9 w-9 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-sm">
+                      <div className="flex-shrink-0 h-9 w-9 bg-gray-100 rounded-full flex items-center justify-center text-primary font-semibold text-sm">
                         {user.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="ml-3">
@@ -211,18 +229,17 @@ export default function AdminUsersView() {
                     <div className="text-sm text-gray-700">{user.email}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2.5 py-1 inline-flex text-xs font-medium rounded-md bg-purple-100 text-purple-700">
+                    <span className="px-2.5 py-1 inline-flex text-xs font-medium rounded-md bg-gray-100 text-secondary">
                       {user.role.name}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <button
                       onClick={() => handleToggleActive(user)}
-                      className={`px-2.5 py-1 inline-flex text-xs font-medium rounded-md transition ${
-                        user.active
-                          ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                          : 'bg-red-100 text-red-700 hover:bg-red-200'
-                      }`}
+                      className={`px-2.5 py-1 inline-flex text-xs font-medium rounded-md transition ${user.active
+                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                        : 'bg-red-100 text-red-700 hover:bg-red-200'
+                        }`}
                     >
                       {user.active ? 'Activo' : 'Inactivo'}
                     </button>
@@ -230,7 +247,7 @@ export default function AdminUsersView() {
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                     <button
                       onClick={() => handleOpenModal(user)}
-                      className="text-blue-600 hover:text-blue-800 font-medium mr-3"
+                      className="text-primary hover:text-secondary font-medium mr-3"
                     >
                       Editar
                     </button>
@@ -254,7 +271,7 @@ export default function AdminUsersView() {
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
             <div className="px-6 py-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-800">
+                <h2 className="text-xl font-semibold text-secondary">
                   {editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
                 </h2>
                 <button
@@ -278,7 +295,7 @@ export default function AdminUsersView() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Ej: Juan Pérez"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 />
               </div>
               <div>
@@ -291,7 +308,7 @@ export default function AdminUsersView() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="usuario@empresa.com"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 />
               </div>
               <div>
@@ -304,7 +321,7 @@ export default function AdminUsersView() {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="••••••••"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 />
               </div>
               <div>
@@ -315,7 +332,7 @@ export default function AdminUsersView() {
                   required
                   value={formData.roleId}
                   onChange={(e) => setFormData({ ...formData, roleId: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white"
                 >
                   <option value="">Seleccionar rol</option>
                   {roles.map((role) => (
@@ -335,7 +352,7 @@ export default function AdminUsersView() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium"
+                  className="px-4 py-2 bg-primary text-white rounded-md hover:opacity-90 transition font-medium"
                 >
                   {editingUser ? 'Actualizar' : 'Crear'}
                 </button>

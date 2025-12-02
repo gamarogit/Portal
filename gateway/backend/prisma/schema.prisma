@@ -41,3 +41,15 @@ model PortalSystem {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model ThemeConfig {
+  id             String   @id @default(uuid())
+  primaryColor   String   @default("#003b4d")
+  secondaryColor String   @default("#00afaa")
+  accentColor    String   @default("#d9c79e")
+  backgroundColor String  @default("#f0f2f5")
+  logoUrl        String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}

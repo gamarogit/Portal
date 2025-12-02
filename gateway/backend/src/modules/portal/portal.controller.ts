@@ -4,7 +4,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('portal')
 export class PortalController {
-  constructor(private readonly portalService: PortalService) {}
+  constructor(private readonly portalService: PortalService) { }
 
   /**
    * Obtener todos los sistemas (admin)
@@ -99,5 +99,30 @@ export class PortalController {
   @UseGuards(JwtAuthGuard)
   async seedDefaultSystems() {
     return this.portalService.seedDefaultSystems();
+  }
+  /**
+   * Obtener configuración de tema
+   */
+  @Get('theme')
+  async getTheme() {
+    return this.portalService.getTheme();
+  }
+
+  /**
+   * Actualizar configuración de tema
+   */
+  @Put('theme')
+  @UseGuards(JwtAuthGuard)
+  async updateTheme(
+    @Body()
+    body: {
+      primaryColor?: string;
+      secondaryColor?: string;
+      accentColor?: string;
+      backgroundColor?: string;
+      logoUrl?: string;
+    },
+  ) {
+    return this.portalService.updateTheme(body);
   }
 }

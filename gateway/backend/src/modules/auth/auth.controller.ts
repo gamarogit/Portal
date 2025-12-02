@@ -6,7 +6,7 @@ import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @Post('login')
   async login(@Body() body: { email: string; password: string }) {
@@ -71,5 +71,29 @@ export class AuthController {
   @Get('roles')
   async getAllRoles() {
     return this.authService.getAllRoles();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Post('roles')
+  async createRole(@Body() body: { name: string; description?: string }) {
+    return this.authService.createRole(body);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Put('roles/:id')
+  async updateRole(
+    @Param('id') id: string,
+    @Body() body: { name?: string; description?: string },
+  ) {
+    return this.authService.updateRole(id, body);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Delete('roles/:id')
+  async deleteRole(@Param('id') id: string) {
+    return this.authService.deleteRole(id);
   }
 }

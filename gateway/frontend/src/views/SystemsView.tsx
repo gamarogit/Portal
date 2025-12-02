@@ -74,11 +74,11 @@ const SystemsView: React.FC = () => {
             <span className="user-name">👤 {user?.name || user?.email}</span>
             {user?.role === 'ADMIN' && (
               <button
-                onClick={() => navigate('/admin/users')}
+                onClick={() => navigate('/admin/configuration')}
                 className="admin-button"
                 style={{ marginRight: '10px' }}
               >
-                👥 Usuarios
+                ⚙️ Configuración
               </button>
             )}
             <button onClick={logout} className="logout-button">

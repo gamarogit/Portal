@@ -61,7 +61,11 @@ const LoginView: React.FC = () => {
             />
           </div>
 
-          <button type="submit" className="login-button" disabled={isLoading}>
+          <button
+            type="submit"
+            className="w-full bg-[#667eea] hover:bg-[#5a67d8] text-white font-bold py-3 px-4 rounded-lg transition duration-200 mt-4 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+            disabled={isLoading}
+          >
             {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
           </button>
         </form>

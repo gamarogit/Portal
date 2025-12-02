@@ -193,10 +193,45 @@ export class PortalService {
       });
     }
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       message: `${defaultSystems.length} sistemas creados correctamente`,
       count: defaultSystems.length
     };
+  }
+  async getTheme() {
+    const theme = await this.prisma.themeConfig.findFirst({
+      where: { isActive: true },
+    });
+
+    if (!theme) {
+      // Crear tema por defecto si no existe
+      return this.prisma.themeConfig.create({
+        data: {
+          primaryColor: '#003b4d',
+          secondaryColor: '#00afaa',
+          accentColor: '#d9c79e',
+          backgroundColor: '#f0f2f5',
+          isActive: true,
+        },
+      });
+    }
+
+    return theme;
+  }
+
+  async updateTheme(data: {
+    primaryColor?: string;
+    secondaryColor?: string;
+    accentColor?: string;
+    backgroundColor?: string;
+    logoUrl?: string;
+  }) {
+    const theme = await this.getTheme();
+
+    return this.prisma.themeConfig.update({
+      where: { id: theme.id },
+      data,
+    });
   }
 }
