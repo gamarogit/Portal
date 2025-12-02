@@ -7,6 +7,68 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// --- CORE MODELS (Gateway) ---
+
+model User {
+  id                     String              @id @default(uuid())
+  email                  String              @unique
+  password               String
+  name                   String
+  roleId                 String
+  role                   Role                @relation(fields: [roleId], references: [id])
+  active                 Boolean             @default(true)
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  // Relations from Activos
+  assets                 Asset[]             @relation("Responsible")
+  requestedMovements     Movement[]          @relation("requestedBy")
+  approvedMovements      Movement[]          @relation("approvedBy")
+  maintenances           Maintenance[]       @relation("performedBy")
+  depreciations          Depreciation[]      @relation("recordedBy")
+  auditLogs              AuditLog[]          @relation("performedBy")
+  licenseAssignments     LicenseAssignment[]
+  customReports          CustomReport[]
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PortalSystem {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String
+  icon        String   @default("📦")
+  route       String   // Puede ser ruta interna o URL a microservicio
+  apiUrl      String?  // URL del backend del microservicio
+  color       String   @default("#667eea")
+  enabled     Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ThemeConfig {
+  id             String   @id @default(uuid())
+  primaryColor   String   @default("#003b4d")
+  secondaryColor String   @default("#00afaa")
+  accentColor    String   @default("#d9c79e")
+  backgroundColor String  @default("#f0f2f5")
+  fontFamily     String   @default("Montserrat")
+  logoUrl        String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// --- ACTIVOS MODELS ---
+
 enum AssetState {
   ACTIVO
   MANTENIMIENTO
@@ -40,34 +102,6 @@ enum LicenseStatus {
   EXPIRED
   CANCELLED
   SUSPENDED
-}
-
-model Role {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  description String?
-  users       User[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model User {
-  id                     String              @id @default(uuid())
-  email                  String              @unique
-  name                   String
-  password               String?             // Contraseña hasheada con bcrypt
-  roleId                 String?
-  role                   Role?               @relation(fields: [roleId], references: [id])
-  assets                 Asset[]             @relation("Responsible")
-  createdAt              DateTime            @default(now())
-  updatedAt              DateTime            @updatedAt
-  requestedMovements     Movement[]          @relation("requestedBy")
-  approvedMovements      Movement[]          @relation("approvedBy")
-  maintenances           Maintenance[]       @relation("performedBy")
-  depreciations          Depreciation[]      @relation("recordedBy")
-  auditLogs              AuditLog[]          @relation("performedBy")
-  licenseAssignments     LicenseAssignment[]
-  customReports          CustomReport[]
 }
 
 model AssetType {
@@ -291,19 +325,6 @@ model CustomReport {
   content     String   @db.Text
   createdBy   String
   creator     User     @relation(fields: [createdBy], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model PortalSystem {
-  id          String   @id @default(uuid())
-  name        String
-  description String
-  icon        String   // Emoji o icono
-  route       String   // Ruta interna o URL externa
-  color       String   // Color hexadecimal para el tema
-  enabled     Boolean  @default(true)
-  order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

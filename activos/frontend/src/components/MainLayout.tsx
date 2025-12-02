@@ -2,6 +2,7 @@
 import { useState, useEffect, ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
+import { useTheme } from '@contexts/ThemeContext';
 
 type Props = {
   children: ReactNode;
@@ -37,6 +38,7 @@ const defaultMenuItems: MenuItem[] = [
 
 export default function MainLayout({ children }: Props) {
   const { token, updateToken } = useAuth();
+  const { theme } = useTheme();
   const [menuItems, setMenuItems] = useState<MenuItem[]>(defaultMenuItems);
   const [menuTitle, setMenuTitle] = useState('Activos TI 2025');
   const [configVersion, setConfigVersion] = useState(0);
@@ -45,9 +47,8 @@ export default function MainLayout({ children }: Props) {
     // Intentar cargar configuración del menú
     const loadMenuConfig = async () => {
       try {
-        // Forzar recarga del módulo con timestamp
-        const timestamp = new Date().getTime();
-        const config = await import(`../.config/index?v=${timestamp}`);
+        // Importación dinámica simple
+        const config = await import('../.config/index');
         const mainLayoutConfig = config.formConfigs?.MainLayout;
 
         if (mainLayoutConfig?.menuItems) {
@@ -57,19 +58,18 @@ export default function MainLayout({ children }: Props) {
           setMenuItems(orderedItems);
         }
 
-        // Cargar título si existe
         if (mainLayoutConfig?.title) {
           setMenuTitle(mainLayoutConfig.title);
         }
       } catch (error) {
-        // Si no existe configuración, usar menú por defecto
         console.log('Usando menú por defecto');
       }
     };
 
-    loadMenuConfig();
+    // Carga de configuración deshabilitada temporalmente por problemas de build
+    // loadMenuConfig();
+    console.log('Usando menú por defecto (Hardcoded)');
 
-    // Escuchar evento de actualización de configuración
     const handleConfigUpdate = () => {
       setConfigVersion(v => v + 1);
       loadMenuConfig();
@@ -89,9 +89,9 @@ export default function MainLayout({ children }: Props) {
   };
 
   return (
-    <div className="app-shell">
-      <aside>
-        <h1 style={{ fontSize: '1.1rem', margin: '0 0 8px 0', fontWeight: '600' }}>{menuTitle}</h1>
+    <div className="app-shell" style={{ fontFamily: theme?.fontFamily ? `"${theme.fontFamily}", sans-serif` : 'sans-serif' }}>
+      <aside style={{ backgroundColor: theme?.primaryColor || '#0f172a' }}>
+        <h1 style={{ fontSize: '1.1rem', margin: '0 0 8px 0', fontWeight: '600', color: 'white' }}>{menuTitle}</h1>
         <nav>
           {menuItems
             .filter(item => item.visible && !item.parentPath)
@@ -99,13 +99,22 @@ export default function MainLayout({ children }: Props) {
               const children = menuItems.filter(child => child.parentPath === item.path && child.visible);
               return (
                 <div key={item.path}>
-                  <NavLink to={item.path}>
+                  <NavLink to={item.path} style={({ isActive }) => ({
+                    color: isActive ? 'white' : 'rgba(255, 255, 255, 0.7)',
+                    fontWeight: isActive ? 'bold' : 'normal',
+                    backgroundColor: isActive ? 'rgba(255, 255, 255, 0.1)' : 'transparent'
+                  })}>
                     {item.icon} {item.label}
                   </NavLink>
                   {children.length > 0 && (
-                    <div style={{ paddingLeft: '20px', borderLeft: '2px solid #ddd', marginLeft: '10px' }}>
+                    <div style={{ paddingLeft: '20px', borderLeft: '1px solid rgba(255, 255, 255, 0.2)', marginLeft: '10px' }}>
                       {children.map((child) => (
-                        <NavLink key={child.path} to={child.path} style={{ fontSize: '0.9em', padding: '8px 15px' }}>
+                        <NavLink key={child.path} to={child.path} style={({ isActive }) => ({
+                          fontSize: '0.9em',
+                          padding: '8px 15px',
+                          color: isActive ? 'white' : 'rgba(255, 255, 255, 0.7)',
+                          fontWeight: isActive ? 'bold' : 'normal'
+                        })}>
                           {child.icon} {child.label}
                         </NavLink>
                       ))}
@@ -115,13 +124,13 @@ export default function MainLayout({ children }: Props) {
               );
             })}
         </nav>
-        <div style={{ marginTop: 'auto', padding: '8px 0 0 0', borderTop: '1px solid #333' }}>
-          <button onClick={handleLogout} style={{ width: '100%', background: '#dc3545', color: 'white', padding: '8px', fontSize: '0.9rem', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+        <div style={{ marginTop: 'auto', padding: '8px 0 0 0', borderTop: '1px solid rgba(255, 255, 255, 0.2)' }}>
+          <button onClick={handleLogout} style={{ width: '100%', background: 'rgba(0, 0, 0, 0.2)', color: 'white', padding: '8px', fontSize: '0.9rem', border: 'none', borderRadius: '4px', cursor: 'pointer', fontFamily: 'inherit' }}>
             Cerrar Sesión
           </button>
         </div>
       </aside>
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', backgroundColor: theme?.backgroundColor || '#f5f7fb' }}>
         <header style={{
           background: 'white',
           borderBottom: '1px solid #e2e8f0',
@@ -147,7 +156,7 @@ export default function MainLayout({ children }: Props) {
               window.location.href = portalUrl.toString();
             }}
             style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              backgroundColor: theme?.primaryColor || '#667eea',
               color: 'white',
               padding: '8px 16px',
               fontSize: '0.9rem',
@@ -159,7 +168,8 @@ export default function MainLayout({ children }: Props) {
               gap: '6px',
               fontWeight: '500',
               boxShadow: '0 2px 4px rgba(102, 126, 234, 0.2)',
-              transition: 'all 0.2s'
+              transition: 'all 0.2s',
+              fontFamily: 'inherit'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-2px)';

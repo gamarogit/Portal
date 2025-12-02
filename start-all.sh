@@ -2,6 +2,7 @@
 set -e
 
 PORTAL_ROOT="/Users/gilberto.amaro/GIT/Portal"
+export JWT_SECRET="super-secret-key-123"
 
 echo "🚀 Iniciando todos los servicios del portal..."
 echo ""

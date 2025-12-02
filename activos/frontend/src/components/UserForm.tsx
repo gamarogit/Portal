@@ -9,7 +9,10 @@ type Props = {
   onCancel?: () => void;
 };
 
+import { useTheme } from '@contexts/ThemeContext';
+
 export default function UserForm({ onCreated, userToEdit, onUpdated, onCancel }: Props) {
+  const { theme } = useTheme();
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -123,32 +126,32 @@ export default function UserForm({ onCreated, userToEdit, onUpdated, onCancel }:
   return (
     <form onSubmit={submit} className="asset-form">
       <h3>{userToEdit ? 'Editar usuario' : 'Crear nuevo usuario'}</h3>
-      
+
       <fieldset>
         <legend>👤 Información del usuario</legend>
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: gridColumns, 
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: gridColumns,
           gap: '15px',
           alignItems: 'start'
         }}>
           <label>
             Nombre completo <span className="required">*</span>
-            <input 
-              value={form.name} 
-              onChange={(e) => handleChange('name', e.target.value)} 
+            <input
+              value={form.name}
+              onChange={(e) => handleChange('name', e.target.value)}
               placeholder="Ej: Juan Pérez"
-              required 
+              required
             />
           </label>
           <label>
             Email corporativo <span className="required">*</span>
-            <input 
+            <input
               type="email"
-              value={form.email} 
+              value={form.email}
               onChange={(e) => handleChange('email', e.target.value)}
               placeholder="Ej: juan.perez@empresa.com"
-              required 
+              required
             />
           </label>
           <label>
@@ -178,11 +181,23 @@ export default function UserForm({ onCreated, userToEdit, onUpdated, onCancel }:
       </p>
 
       <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-        <button type="submit" disabled={loading}>
+        <button
+          type="submit"
+          disabled={loading}
+          style={{ backgroundColor: theme?.primaryColor || '#2563eb' }}
+        >
           {loading ? 'Procesando…' : userToEdit ? 'Actualizar' : 'Crear'}
         </button>
         {userToEdit && onCancel && (
-          <button type="button" onClick={onCancel} className="ghost">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="ghost"
+            style={{
+              color: theme?.primaryColor || '#2563eb',
+              borderColor: theme?.primaryColor || '#cbd5f5'
+            }}
+          >
             Cancelar
           </button>
         )}

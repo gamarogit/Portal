@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-primary: #003b4d;
+  --color-secondary: #00afaa;
+  --color-accent: #d9c79e;
+  --color-background: #f0f2f5;
+  --font-family: 'Montserrat', sans-serif;
+}
+
 * {
   margin: 0;
   padding: 0;

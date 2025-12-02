@@ -4,6 +4,7 @@
   justify-content: center;
   align-items: center;
   padding: 2rem;
+  background-color: var(--color-background);
 }
 
 .login-card {
@@ -18,7 +19,7 @@
 .login-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #667eea;
+  color: var(--color-primary);
   text-align: center;
   margin-bottom: 0.5rem;
 }
@@ -66,7 +67,7 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--color-primary);
 }
 
 .form-group input:disabled {
@@ -75,7 +76,7 @@
 }
 
 .login-button {
-  background: #667eea;
+  background: var(--color-primary);
   color: white;
   padding: 0.875rem 2rem;
   border-radius: 0.5rem;
@@ -87,7 +88,8 @@
 
 .login-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  opacity: 0.9;
 }
 
 .login-button:disabled {

@@ -9,7 +9,7 @@ async function bootstrap() {
   app.enableCors({
     origin: (origin, callback) => {
       // Un solo regex para localhost y red local
-      const allowedOriginPattern = /^http:\/\/(localhost|192\.168\.\d{1,3}\.\d{1,3}):(5173|5174|3101|3102|3103)$/;
+      const allowedOriginPattern = /^http:\/\/(localhost|192\.168\.\d{1,3}\.\d{1,3}):(3000|5173|5174|3101|3102|3103)$/;
 
       if (!origin || allowedOriginPattern.test(origin)) {
         callback(null, true);

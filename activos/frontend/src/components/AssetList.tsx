@@ -18,12 +18,11 @@ export default function AssetList() {
 
   useEffect(() => {
     fetchAssets();
-    
+
     // Cargar título desde configuración
     const loadTitle = async () => {
       try {
-        const timestamp = new Date().getTime();
-        const config = await import(`../.config/index?v=${timestamp}`);
+        const config = await import('../.config/index');
         const assetListConfig = config.formConfigs?.AssetList;
         if (assetListConfig?.title) {
           setTableTitle(assetListConfig.title);
@@ -32,8 +31,8 @@ export default function AssetList() {
         // Silently use default title
       }
     };
-    
-    loadTitle();
+
+    // loadTitle();
   }, []);
 
   const handleEdit = (asset: AssetSummary) => {
@@ -57,8 +56,8 @@ export default function AssetList() {
     <div className="card">
       <h2 style={{ marginBottom: '1rem', color: '#333' }}>{tableTitle}</h2>
       <h3>{editingAsset ? 'Editar activo' : 'Crear activo'}</h3>
-      <AssetForm 
-        onCreated={fetchAssets} 
+      <AssetForm
+        onCreated={fetchAssets}
         assetToEdit={editingAsset}
         onUpdated={handleUpdated}
         onCancel={handleCancelEdit}
@@ -87,7 +86,7 @@ export default function AssetList() {
                 <td>{asset.state}</td>
                 <td>{asset.operatingSystem ?? '—'}</td>
                 <td>
-                  <button 
+                  <button
                     onClick={() => handleEdit(asset)}
                     style={{ padding: '4px 8px', fontSize: '0.9rem' }}
                   >

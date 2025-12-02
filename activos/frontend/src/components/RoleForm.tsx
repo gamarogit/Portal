@@ -8,7 +8,10 @@ type Props = {
   onCancel?: () => void;
 };
 
+import { useTheme } from '@contexts/ThemeContext';
+
 export default function RoleForm({ onCreated, roleToEdit, onUpdated, onCancel }: Props) {
+  const { theme } = useTheme();
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -79,23 +82,23 @@ export default function RoleForm({ onCreated, roleToEdit, onUpdated, onCancel }:
   return (
     <form onSubmit={submit} className="asset-form">
       <h3>{roleToEdit ? 'Editar rol' : 'Crear nuevo rol'}</h3>
-      
+
       <fieldset>
         <legend>📋 Información del rol</legend>
         <div className="asset-form-grid">
           <label>
             Nombre del rol <span className="required">*</span>
-            <input 
-              value={form.name} 
-              onChange={(e) => handleChange('name', e.target.value)} 
+            <input
+              value={form.name}
+              onChange={(e) => handleChange('name', e.target.value)}
               placeholder="Ej: Gerente, Analista, Desarrollador"
-              required 
+              required
             />
           </label>
           <label>
             Descripción
-            <textarea 
-              value={form.description} 
+            <textarea
+              value={form.description}
               onChange={(e) => handleChange('description', e.target.value)}
               placeholder="Descripción opcional del rol"
               rows={3}
@@ -109,11 +112,23 @@ export default function RoleForm({ onCreated, roleToEdit, onUpdated, onCancel }:
       </p>
 
       <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-        <button type="submit" disabled={loading}>
+        <button
+          type="submit"
+          disabled={loading}
+          style={{ backgroundColor: theme?.primaryColor || '#2563eb' }}
+        >
           {loading ? 'Procesando…' : roleToEdit ? 'Actualizar' : 'Crear'}
         </button>
         {roleToEdit && onCancel && (
-          <button type="button" onClick={onCancel} className="ghost">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="ghost"
+            style={{
+              color: theme?.primaryColor || '#2563eb',
+              borderColor: theme?.primaryColor || '#cbd5f5'
+            }}
+          >
             Cancelar
           </button>
         )}

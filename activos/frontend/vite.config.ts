@@ -24,6 +24,16 @@ export default defineConfig({
       ignored: ['**/node_modules/**', '**/.git/**'],
     },
     proxy: {
+      '/api/auth': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/api/portal': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,

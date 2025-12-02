@@ -9,7 +9,10 @@ type Props = {
   onCancel?: () => void;
 };
 
+import { useTheme } from '@contexts/ThemeContext';
+
 export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel }: Props) {
+  const { theme } = useTheme();
   const [form, setForm] = useState({
     name: '',
     assetTypeId: '',
@@ -429,11 +432,35 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
       </div>
 
       <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-        <button type="submit" disabled={loading} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            padding: '0.4rem 0.8rem',
+            fontSize: '0.85rem',
+            backgroundColor: theme?.primaryColor || '#2563eb',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
           {loading ? 'Guardando...' : assetToEdit ? 'Actualizar' : 'Crear'}
         </button>
         {assetToEdit && onCancel && (
-          <button type="button" onClick={onCancel} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem', background: '#6c757d' }}>
+          <button
+            type="button"
+            onClick={onCancel}
+            style={{
+              padding: '0.4rem 0.8rem',
+              fontSize: '0.85rem',
+              background: 'transparent',
+              color: theme?.primaryColor || '#6c757d',
+              border: `1px solid ${theme?.primaryColor || '#6c757d'}`,
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
             Cancelar
           </button>
         )}

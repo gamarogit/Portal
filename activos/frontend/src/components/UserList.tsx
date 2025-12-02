@@ -5,7 +5,10 @@ type Props = {
   onEdit: (user: User) => void;
 };
 
+import { useTheme } from '@contexts/ThemeContext';
+
 export default function UserList({ onEdit }: Props) {
+  const { theme } = useTheme();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,11 +72,18 @@ export default function UserList({ onEdit }: Props) {
                 <td>{user.role?.name || <em style={{ color: '#999' }}>Sin rol</em>}</td>
                 <td>{new Date(user.createdAt).toLocaleDateString('es-ES')}</td>
                 <td>
-                  <button onClick={() => onEdit(user)} className="ghost">
+                  <button
+                    onClick={() => onEdit(user)}
+                    className="ghost"
+                    style={{
+                      color: theme?.primaryColor || '#2563eb',
+                      borderColor: theme?.primaryColor || '#cbd5f5'
+                    }}
+                  >
                     Editar
                   </button>
-                  <button 
-                    onClick={() => handleDelete(user.id, user.name)} 
+                  <button
+                    onClick={() => handleDelete(user.id, user.name)}
                     className="ghost"
                     style={{ color: '#ef4444' }}
                   >

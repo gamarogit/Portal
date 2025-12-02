@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: activos_portal
+      POSTGRES_DB: portal
     ports:
       - "5432:5432"
     volumes:
@@ -40,7 +40,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/activos_portal
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/portal
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       REDIS_URL: redis://redis:6379
       ACTIVOS_API: http://activos-backend:3001

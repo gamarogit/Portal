@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import './LoginView.css';
 
 const LoginView: React.FC = () => {
@@ -9,6 +10,7 @@ const LoginView: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,7 +31,7 @@ const LoginView: React.FC = () => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1 className="login-title">Portal Empresarial</h1>
+        <h1 className="login-title" style={{ color: theme?.primaryColor }}>Portal Empresarial</h1>
         <p className="login-subtitle">Inicia sesión para continuar</p>
 
         <form onSubmit={handleSubmit} className="login-form">
@@ -45,6 +47,7 @@ const LoginView: React.FC = () => {
               placeholder="correo@empresa.com"
               required
               disabled={isLoading}
+              style={{ borderColor: theme?.primaryColor ? `${theme.primaryColor}40` : undefined }}
             />
           </div>
 
@@ -58,13 +61,18 @@ const LoginView: React.FC = () => {
               placeholder="••••••••"
               required
               disabled={isLoading}
+              style={{ borderColor: theme?.primaryColor ? `${theme.primaryColor}40` : undefined }}
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-[#667eea] hover:bg-[#5a67d8] text-white font-bold py-3 px-4 rounded-lg transition duration-200 mt-4 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+            className="login-button w-full shadow-md hover:shadow-lg"
             disabled={isLoading}
+            style={{
+              backgroundColor: theme?.primaryColor || 'var(--color-primary)',
+              color: '#ffffff'
+            }}
           >
             {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
           </button>

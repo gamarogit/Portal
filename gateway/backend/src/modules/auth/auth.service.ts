@@ -34,7 +34,7 @@ export class AuthService {
       throw new UnauthorizedException('Usuario sin contraseña configurada');
     }
 
-    const token = this.createToken(user.id, user.role ? [user.role.name] : []);
+    const token = this.createToken(user.id, user.email, user.name, user.role ? [user.role.name] : []);
     return {
       access_token: token,
       user: {
@@ -57,8 +57,8 @@ export class AuthService {
     return user;
   }
 
-  createToken(userId: string, roles: string[] = []) {
-    const payload = { sub: userId, roles };
+  createToken(userId: string, email: string, name: string, roles: string[] = []) {
+    const payload = { sub: userId, email, name, roles };
     return this.jwtService.sign(payload);
   }
 
