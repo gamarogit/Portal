@@ -101,7 +101,7 @@ export const assetService = {
 };
 
 export const movementService = {
-  list: () => api.get<Movement[]>('/movements').then((res) => res.data.data || res.data || []),
+  list: () => api.get<any>('/movements').then((res) => res.data.data || res.data || []),
   create: (payload: MovementPayload) => api.post('/movements', payload).then((res) => res.data),
   updateStatus: (id: string, status: Movement['status']) => api.patch(`/movements/${id}/status`, { status }).then((res) => res.data),
 };

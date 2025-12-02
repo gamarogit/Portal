@@ -1,0 +1,44 @@
+{
+    "name": "gastos-frontend",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "vite --host 0.0.0.0 --clearScreen false",
+        "build": "tsc && vite build",
+        "preview": "vite preview",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "clean": "rm -rf node_modules/.vite dist",
+        "clean:all": "rm -rf node_modules/.vite dist node_modules && npm install"
+    },
+    "dependencies": {
+        "@tiptap/extension-table": "^3.11.1",
+        "@tiptap/extension-table-cell": "^3.11.1",
+        "@tiptap/extension-table-header": "^3.11.1",
+        "@tiptap/extension-table-row": "^3.11.1",
+        "@tiptap/extension-text-align": "^3.11.1",
+        "@tiptap/react": "^3.11.1",
+        "@tiptap/starter-kit": "^3.11.1",
+        "axios": "^1.7.0",
+        "clsx": "^1.2.1",
+        "express": "^5.1.0",
+        "html2canvas": "^1.4.1",
+        "jspdf": "^3.0.4",
+        "react": "^18.3.0",
+        "react-dom": "^18.3.0",
+        "react-router-dom": "^6.14.1"
+    },
+    "devDependencies": {
+        "@testing-library/jest-dom": "^6.0.0",
+        "@testing-library/react": "^14.0.0",
+        "@testing-library/user-event": "^14.5.2",
+        "@types/react": "^18.3.0",
+        "@types/react-dom": "^18.3.0",
+        "@types/react-router-dom": "^5.3.3",
+        "@vitejs/plugin-react": "^4.0.0",
+        "happy-dom": "^3.2.0",
+        "typescript": "^5.7.2",
+        "vite": "^5.0.0",
+        "vitest": "^1.4.0"
+    }
+}

@@ -28,16 +28,16 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showDevHelpers, setShowDevHelpers] = useState(false);
-  
+
   // Catálogos
   const [assetTypes, setAssetTypes] = useState<AssetType[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [users, setUsers] = useState<UserCatalog[]>([]);
-  
+
   // Configuración de formulario
   const [formConfig, setFormConfig] = useState<any>(null);
   const [formTitle, setFormTitle] = useState('Formulario de Activo');
-  
+
   useEffect(() => {
     if (formConfig) {
       // Cargar título si existe
@@ -190,7 +190,7 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
         setStatus('✓ Activo creado correctamente');
         onCreated();
       }
-      
+
       if (!assetToEdit) {
         setForm({
           name: '',
@@ -235,8 +235,8 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
         type === 'assetType'
           ? await devService.createAssetType(helper[type])
           : type === 'location'
-          ? await devService.createLocation(helper[type])
-          : await devService.createUser(helper[type]);
+            ? await devService.createLocation(helper[type])
+            : await devService.createUser(helper[type]);
       setHelperStatus(`${type} creado: ${result.id}`);
       if (type === 'assetType') handleChange('assetTypeId', result.id);
       if (type === 'location') handleChange('locationId', result.id);
@@ -277,99 +277,125 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
 
   // Definir los campos del formulario con su orden predeterminado
   const allFields = [
-    { name: 'name', order: 0, render: () => (
-      <label key="name">
-        <span style={{ fontWeight: 600 }}>Nombre</span>
-        <input value={form.name} onChange={(e) => handleChange('name', e.target.value)} placeholder="Laptop HP" required style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-      </label>
-    )},
-    { name: 'serialNumber', order: 1, render: () => (
-      <label key="serialNumber">
-        <span style={{ fontWeight: 600 }}>Serie</span>
-        <input value={form.serialNumber} onChange={(e) => handleChange('serialNumber', e.target.value)} placeholder="SN123" style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-      </label>
-    )},
-    { name: 'assetTypeId', order: 2, render: () => (
-      <label key="assetTypeId">
-        <span style={{ fontWeight: 600 }}>Tipo *</span>
-        <select value={form.assetTypeId} onChange={(e) => handleChange('assetTypeId', e.target.value)} required style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}>
-          <option value="">--</option>
-          {assetTypes.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-        </select>
-      </label>
-    )},
-    { name: 'locationId', order: 3, render: () => (
-      <label key="locationId">
-        <span style={{ fontWeight: 600 }}>Ubicación</span>
-        <select value={form.locationId} onChange={(e) => handleChange('locationId', e.target.value)} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}>
-          <option value="">--</option>
-          {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
-        </select>
-      </label>
-    )},
-    { name: 'responsibleId', order: 4, render: () => (
-      <label key="responsibleId">
-        <span style={{ fontWeight: 600 }}>Responsable</span>
-        <select value={form.responsibleId} onChange={(e) => handleChange('responsibleId', e.target.value)} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}>
-          <option value="">-- Sin asignar --</option>
-          {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
-        </select>
-      </label>
-    )},
-    { name: 'operatingSystem', order: 5, render: () => (
-      <label key="operatingSystem">
-        <span style={{ fontWeight: 600 }}>Tipo</span>
-        <input value={form.operatingSystem} onChange={(e) => handleChange('operatingSystem', e.target.value)} placeholder="Windows 11" style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-      </label>
-    )},
-    { name: 'manufacturer', order: 6, render: () => (
-      <label key="manufacturer">
-        <span style={{ fontWeight: 600 }}>Fabricante</span>
-        <input value={form.manufacturer} onChange={(e) => handleChange('manufacturer', e.target.value)} placeholder="HP" style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-      </label>
-    )},
-    { name: 'model', order: 7, render: () => (
-      <label key="model">
-        <span style={{ fontWeight: 600 }}>Modelo</span>
-        <input value={form.model} onChange={(e) => handleChange('model', e.target.value)} placeholder="ProBook 450" style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-      </label>
-    )},
-    { name: 'cost', order: 8, render: () => (
-      <label key="cost">
-        <span style={{ fontWeight: 600 }}>Costo</span>
-        <input type="number" min="0" step="0.01" value={form.cost} onChange={(e) => handleChange('cost', e.target.value)} placeholder="0" style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-      </label>
-    )},
-    { name: 'purchaseDate', order: 9, render: () => (
-      <label key="purchaseDate">
-        <span style={{ fontWeight: 600 }}>Compra</span>
-        <input type="date" value={form.purchaseDate} onChange={(e) => handleChange('purchaseDate', e.target.value)} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-      </label>
-    )},
-    { name: 'warrantyUntil', order: 10, render: () => (
-      <label key="warrantyUntil">
-        <span style={{ fontWeight: 600 }}>Garantía</span>
-        <input type="date" value={form.warrantyUntil} onChange={(e) => handleChange('warrantyUntil', e.target.value)} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-      </label>
-    )},
-    { name: 'state', order: 11, render: () => assetToEdit ? (
-      <label key="state">
-        <span style={{ fontWeight: 600 }}>Estado</span>
-        <select value={form.state} onChange={(e) => handleChange('state', e.target.value)} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}>
-          <option value="ACTIVO">Activo</option>
-          <option value="MANTENIMIENTO">Mantenimiento</option>
-          <option value="DADO_DE_BAJA">Baja</option>
-          <option value="TRANSFERIDO">Transferido</option>
-          <option value="CUARENTENA">Cuarentena</option>
-        </select>
-      </label>
-    ) : null},
-    { name: 'notes', order: 12, render: () => (
-      <label key="notes" style={{ gridColumn: '1 / -1' }}>
-        <span style={{ fontWeight: 600 }}>Notas</span>
-        <textarea value={form.notes} onChange={(e) => handleChange('notes', e.target.value)} placeholder="Observaciones..." rows={2} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-      </label>
-    )},
+    {
+      name: 'name', order: 0, render: () => (
+        <label key="name">
+          <span style={{ fontWeight: 600 }}>Nombre</span>
+          <input value={form.name} onChange={(e) => handleChange('name', e.target.value)} placeholder="Laptop HP" required style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
+        </label>
+      )
+    },
+    {
+      name: 'serialNumber', order: 1, render: () => (
+        <label key="serialNumber">
+          <span style={{ fontWeight: 600 }}>Serie</span>
+          <input value={form.serialNumber} onChange={(e) => handleChange('serialNumber', e.target.value)} placeholder="SN123" style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
+        </label>
+      )
+    },
+    {
+      name: 'assetTypeId', order: 2, render: () => (
+        <label key="assetTypeId">
+          <span style={{ fontWeight: 600 }}>Tipo *</span>
+          <select value={form.assetTypeId} onChange={(e) => handleChange('assetTypeId', e.target.value)} required style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}>
+            <option value="">--</option>
+            {assetTypes.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+          </select>
+        </label>
+      )
+    },
+    {
+      name: 'locationId', order: 3, render: () => (
+        <label key="locationId">
+          <span style={{ fontWeight: 600 }}>Ubicación</span>
+          <select value={form.locationId} onChange={(e) => handleChange('locationId', e.target.value)} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}>
+            <option value="">--</option>
+            {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+          </select>
+        </label>
+      )
+    },
+    {
+      name: 'responsibleId', order: 4, render: () => (
+        <label key="responsibleId">
+          <span style={{ fontWeight: 600 }}>Responsable</span>
+          <select value={form.responsibleId} onChange={(e) => handleChange('responsibleId', e.target.value)} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}>
+            <option value="">-- Sin asignar --</option>
+            {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+          </select>
+        </label>
+      )
+    },
+    {
+      name: 'operatingSystem', order: 5, render: () => (
+        <label key="operatingSystem">
+          <span style={{ fontWeight: 600 }}>Tipo</span>
+          <input value={form.operatingSystem} onChange={(e) => handleChange('operatingSystem', e.target.value)} placeholder="Windows 11" style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
+        </label>
+      )
+    },
+    {
+      name: 'manufacturer', order: 6, render: () => (
+        <label key="manufacturer">
+          <span style={{ fontWeight: 600 }}>Fabricante</span>
+          <input value={form.manufacturer} onChange={(e) => handleChange('manufacturer', e.target.value)} placeholder="HP" style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
+        </label>
+      )
+    },
+    {
+      name: 'model', order: 7, render: () => (
+        <label key="model">
+          <span style={{ fontWeight: 600 }}>Modelo</span>
+          <input value={form.model} onChange={(e) => handleChange('model', e.target.value)} placeholder="ProBook 450" style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
+        </label>
+      )
+    },
+    {
+      name: 'cost', order: 8, render: () => (
+        <label key="cost">
+          <span style={{ fontWeight: 600 }}>Costo</span>
+          <input type="number" min="0" step="0.01" value={form.cost} onChange={(e) => handleChange('cost', e.target.value)} placeholder="0" style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
+        </label>
+      )
+    },
+    {
+      name: 'purchaseDate', order: 9, render: () => (
+        <label key="purchaseDate">
+          <span style={{ fontWeight: 600 }}>Compra</span>
+          <input type="date" value={form.purchaseDate} onChange={(e) => handleChange('purchaseDate', e.target.value)} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
+        </label>
+      )
+    },
+    {
+      name: 'warrantyUntil', order: 10, render: () => (
+        <label key="warrantyUntil">
+          <span style={{ fontWeight: 600 }}>Garantía</span>
+          <input type="date" value={form.warrantyUntil} onChange={(e) => handleChange('warrantyUntil', e.target.value)} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
+        </label>
+      )
+    },
+    {
+      name: 'state', order: 11, render: () => assetToEdit ? (
+        <label key="state">
+          <span style={{ fontWeight: 600 }}>Estado</span>
+          <select value={form.state} onChange={(e) => handleChange('state', e.target.value)} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}>
+            <option value="ACTIVO">Activo</option>
+            <option value="MANTENIMIENTO">Mantenimiento</option>
+            <option value="DADO_DE_BAJA">Baja</option>
+            <option value="TRANSFERIDO">Transferido</option>
+            <option value="CUARENTENA">Cuarentena</option>
+          </select>
+        </label>
+      ) : null
+    },
+    {
+      name: 'notes', order: 12, render: () => (
+        <label key="notes" style={{ gridColumn: '1 / -1' }}>
+          <span style={{ fontWeight: 600 }}>Notas</span>
+          <textarea value={form.notes} onChange={(e) => handleChange('notes', e.target.value)} placeholder="Observaciones..." rows={2} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
+        </label>
+      )
+    },
   ];
 
   // Aplicar orden personalizado si existe configuración
@@ -378,9 +404,9 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
       console.log('[AssetForm] Usando orden predeterminado');
       return allFields;
     }
-    
-    console.log('[AssetForm] Aplicando orden personalizado:', formConfig.fields.map(f => `${f.name}:${f.order}`));
-    
+
+    console.log('[AssetForm] Aplicando orden personalizado:', formConfig.fields.map((f: any) => `${f.name}:${f.order}`));
+
     return [...allFields].sort((a, b) => {
       const configA = formConfig.fields.find((f: any) => f.name === a.name);
       const configB = formConfig.fields.find((f: any) => f.name === b.name);
