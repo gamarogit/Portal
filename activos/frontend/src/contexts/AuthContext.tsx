@@ -12,7 +12,19 @@ const AuthContext = createContext<AuthContextValue>({
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // Inicializar con token desde localStorage (vacío si no existe)
+  // Procesar token de URL ANTES de inicializar el estado
+  const urlParams = new URLSearchParams(window.location.search);
+  const tokenFromUrl = urlParams.get('token');
+  
+  if (tokenFromUrl) {
+    console.log('[Activos Auth] Token detected in URL, saving to localStorage');
+    localStorage.setItem('token', tokenFromUrl);
+    setAuthToken(tokenFromUrl);
+    // Limpiar el token de la URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+  
+  // Inicializar con token desde localStorage
   const [token, setToken] = useState(localStorage.getItem('token') || '');
 
   const value = useMemo(

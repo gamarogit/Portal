@@ -1,16 +1,50 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
+import { PortalSystem } from '@prisma/client';
 
 @Injectable()
 export class PortalService {
-  constructor(private prisma: PrismaService) {}
+  private publicHost: string;
+
+  constructor(
+    private prisma: PrismaService,
+    private configService: ConfigService,
+  ) {
+    this.publicHost = this.configService.get<string>('PUBLIC_HOST') || 'http://localhost';
+    console.log('📢 [PortalService] PUBLIC_HOST a usar:', this.publicHost);
+  }
+
+  private transformSystemUrls(system: PortalSystem): PortalSystem {
+    const transform = (url: string | null): string | null => {
+      if (!url || !url.startsWith('http')) {
+        return url;
+      }
+      try {
+        const parsedUrl = new URL(url);
+        if (parsedUrl.hostname === 'localhost') {
+          const publicUrl = new URL(this.publicHost);
+          parsedUrl.hostname = publicUrl.hostname;
+        }
+        return parsedUrl.toString();
+      } catch {
+        return url; // Devuelve la URL original si es inválida
+      }
+    };
+
+    return {
+      ...system,
+      route: transform(system.route) || system.route,
+      apiUrl: transform(system.apiUrl),
+    };
+  }
 
   async getAllSystems() {
     const systems = await this.prisma.portalSystem.findMany({
       orderBy: { order: 'asc' },
     });
 
-    return { systems };
+    return { systems: systems.map(this.transformSystemUrls.bind(this)) };
   }
 
   async getEnabledSystems() {
@@ -19,7 +53,7 @@ export class PortalService {
       orderBy: { order: 'asc' },
     });
 
-    return { systems };
+    return { systems: systems.map(this.transformSystemUrls.bind(this)) };
   }
 
   async getSystemById(id: string) {
@@ -101,7 +135,7 @@ export class PortalService {
         name: 'Gestión de Activos',
         description: 'Sistema de inventario y control de activos TI',
         icon: '💼',
-        route: '/assets',
+        route: 'http://localhost:3101',
         color: '#667eea',
         enabled: true,
         order: 1,

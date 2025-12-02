@@ -21,12 +21,12 @@ async function main() {
   
   // Crear o actualizar el usuario administrador
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@activos.com' },
+    where: { email: 'admin@portal.com' },
     update: {
       password: hashedPassword, // Actualiza la contraseña si el usuario existe
     },
     create: {
-      email: 'admin@activos.com',
+      email: 'admin@portal.com',
       password: hashedPassword,
       name: 'Administrador',
       roleId: adminRole.id,

@@ -120,7 +120,56 @@ export default function MainLayout({ children }: Props) {
           </button>
         </div>
       </aside>
-      <main>{children}</main>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+        <header style={{ 
+          background: 'white', 
+          borderBottom: '1px solid #e2e8f0', 
+          padding: '12px 24px', 
+          display: 'flex', 
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          minHeight: '60px'
+        }}>
+          <button 
+            onClick={() => {
+              const token = localStorage.getItem('token');
+                  const portalUrlString = import.meta.env.VITE_PORTAL_URL || `http://${window.location.hostname}:3101`;
+                  console.log('[Activos] Returning to portal with token:', token ? 'YES' : 'NO');
+                  const portalUrl = new URL(portalUrlString);              if (token) {
+                portalUrl.searchParams.set('token', token);
+                console.log('[Activos] Portal URL:', portalUrl.toString().substring(0, 100) + '...');
+              }
+              window.location.href = portalUrl.toString();
+            }}
+            style={{ 
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white', 
+              padding: '8px 16px', 
+              fontSize: '0.9rem', 
+              border: 'none', 
+              borderRadius: '6px', 
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontWeight: '500',
+              boxShadow: '0 2px 4px rgba(102, 126, 234, 0.2)',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 4px 8px rgba(102, 126, 234, 0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(102, 126, 234, 0.2)';
+            }}
+          >
+            🏠 Portal Empresarial
+          </button>
+        </header>
+        <main style={{ flex: 1, overflow: 'auto', padding: '32px' }}>{children}</main>
+      </div>
     </div>
   );
 }

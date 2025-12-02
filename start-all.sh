@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-PORTAL_ROOT="/Users/gamaro/Git/portal"
+PORTAL_ROOT="/Users/gilberto.amaro/GIT/Portal"
 
 echo "🚀 Iniciando todos los servicios del portal..."
 echo ""

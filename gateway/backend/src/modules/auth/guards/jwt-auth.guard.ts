@@ -9,12 +9,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   canActivate(context: ExecutionContext) {
-    const skip =
-      this.configService.get('DEV_ALLOW_PUBLIC_ASSETS') === '1' ||
-      process.env.NODE_ENV !== 'production';
-    if (skip) {
-      return true;
-    }
+    // Siempre validar el token en el endpoint /auth/me
     return super.canActivate(context);
   }
 }

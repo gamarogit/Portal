@@ -34,9 +34,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException('Usuario inválido');
     }
+    
+    const roles = payload.roles || (user.role ? [user.role.name] : []);
+    
     return {
       ...user,
-      roles: payload.roles ?? user.role ? [user.role.name] : [],
+      roles,
     };
   }
 }

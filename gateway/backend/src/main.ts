@@ -7,12 +7,17 @@ async function bootstrap() {
 
   // CORS para micro-frontends
   app.enableCors({
-    origin: process.env.CORS_ORIGINS?.split(',') || [
-      'http://localhost:5173',
-      'http://localhost:3101',
-      'http://localhost:3102',
-      'http://localhost:3103',
-    ],
+    origin: (origin, callback) => {
+      // Un solo regex para localhost y red local
+      const allowedOriginPattern = /^http:\/\/(localhost|192\.168\.\d{1,3}\.\d{1,3}):(5173|5174|3101|3102|3103)$/;
+
+      if (!origin || allowedOriginPattern.test(origin)) {
+        callback(null, true);
+      } else {
+        console.log('❌ CORS Blocked:', origin);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   });
 
@@ -29,8 +34,11 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   const port = process.env.PORT || 3000;
-  await app.listen(port);
-  console.log(`🚀 Gateway running on http://localhost:${port}`);
+  await app.listen(port, '0.0.0.0');
+  console.log(`🚀 Gateway running on:`);
+  console.log(`   Local:   http://localhost:${port}`);
+  console.log(`   Network: http://192.168.0.149:${port}`);
+  console.log(`   Network: http://192.168.0.149:${port}`);
 }
 
 bootstrap();

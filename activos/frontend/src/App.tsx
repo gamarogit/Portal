@@ -15,8 +15,6 @@ import NotificationsView from '@views/NotificationsView';
 import ReportBuilderView from '@views/ReportBuilderView';
 import ConfigurationView from '@views/ConfigurationView';
 import LoginView from '@views/LoginView';
-import PortalView from '@views/PortalView';
-import PortalAdminView from '@views/PortalAdminView';
 
 function App() {
   const { token } = useAuth();
@@ -30,9 +28,7 @@ function App() {
   return (
     <MainLayout>
       <Routes>
-        <Route path="/" element={<Navigate to="/portal" replace />} />
-        <Route path="/portal" element={<PortalView />} />
-        <Route path="/portal/admin" element={<PortalAdminView />} />
+        <Route path="/" element={<Navigate to="/assets" replace />} />
         <Route path="/dashboard" element={<DashboardView />} />
         <Route path="/assets" element={<AssetsView />} />
         <Route path="/movements" element={<MovementView />} />

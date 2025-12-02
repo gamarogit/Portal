@@ -31,7 +31,7 @@ cd activos/frontend && npm run dev
 ## Acceso
 
 - **Portal**: http://localhost:5174
-  - Login: `admin@portal.com` / `admin123`
+  - Login: `admin@activos.com` / `admin123`
 - **Activos**: http://localhost:3101
 
 ## Documentación
