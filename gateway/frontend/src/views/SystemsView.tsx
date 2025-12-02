@@ -33,13 +33,19 @@ const SystemsView: React.FC = () => {
     if (finalUrl.startsWith('http')) {
       try {
         const url = new URL(finalUrl);
+
+        // Fix: Reemplazar localhost con el hostname actual para soportar acceso en red local
+        if (url.hostname === 'localhost' && window.location.hostname !== 'localhost') {
+          url.hostname = window.location.hostname;
+        }
+
         if (token) {
           url.searchParams.set('token', token);
         }
         window.location.href = url.toString();
       } catch (error) {
-        console.error('URL inválida desde el backend:', { 
-          name: system.name, 
+        console.error('URL inválida desde el backend:', {
+          name: system.name,
           route: system.route,
           error,
         });
@@ -85,7 +91,7 @@ const SystemsView: React.FC = () => {
       <main className="systems-main">
         <div className="systems-content">
           <h2 className="systems-title">Sistemas Disponibles</h2>
-          
+
           {error && <div className="error-message">{error}</div>}
 
           <div className="systems-grid">

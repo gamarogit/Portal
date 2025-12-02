@@ -134,7 +134,11 @@ export default function MainLayout({ children }: Props) {
           <button
             onClick={() => {
               const token = localStorage.getItem('token');
-              const portalUrlString = import.meta.env.VITE_PORTAL_URL || `http://${window.location.hostname}:5174`;
+              // Priorizar construcción dinámica si estamos en red local para evitar redirección a localhost hardcodeado
+              const envUrl = import.meta.env.VITE_PORTAL_URL;
+              const portalUrlString = (envUrl && !envUrl.includes('localhost'))
+                ? envUrl
+                : `http://${window.location.hostname}:5174`;
               console.log('[Activos] Returning to portal with token:', token ? 'YES' : 'NO');
               const portalUrl = new URL(portalUrlString); if (token) {
                 portalUrl.searchParams.set('token', token);
