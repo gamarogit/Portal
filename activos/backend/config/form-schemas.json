@@ -1,0 +1,239 @@
+{
+  "LicenseForm": {
+    "fields": [
+      {
+        "name": "name",
+        "label": "Nombre",
+        "type": "text",
+        "required": true,
+        "order": 1
+      },
+      {
+        "name": "vendor",
+        "label": "Proveedor",
+        "type": "text",
+        "required": true,
+        "order": 2
+      },
+      {
+        "name": "licenseKey",
+        "label": "Clave de Licencia",
+        "type": "text",
+        "required": false,
+        "order": 3
+      },
+      {
+        "name": "totalSeats",
+        "label": "Cantidad",
+        "type": "number",
+        "required": true,
+        "order": 4
+      },
+      {
+        "name": "purchaseDate",
+        "label": "Fecha de Compra",
+        "type": "date",
+        "required": true,
+        "order": 5
+      },
+      {
+        "name": "expirationDate",
+        "label": "Fecha de Expiración",
+        "type": "date",
+        "required": false,
+        "order": 6
+      },
+      {
+        "name": "unitCost",
+        "label": "Costo Unitario",
+        "type": "number",
+        "required": false,
+        "order": 7
+      },
+      {
+        "name": "totalCost",
+        "label": "Costo Total",
+        "type": "number",
+        "required": false,
+        "order": 8
+      },
+      {
+        "name": "invoiceFolio",
+        "label": "Folio de Factura",
+        "type": "text",
+        "required": false,
+        "order": 9
+      }
+    ],
+    "layout": "grid-2cols"
+  },
+  "LicensesView": {
+    "fields": [
+      {
+        "name": "name",
+        "label": "Nombre",
+        "type": "text",
+        "required": false,
+        "order": 1
+      },
+      {
+        "name": "vendor",
+        "label": "Proveedor",
+        "type": "text",
+        "required": false,
+        "order": 2
+      },
+      {
+        "name": "licenseKey",
+        "label": "Clave de Licencia",
+        "type": "text",
+        "required": false,
+        "order": 3
+      },
+      {
+        "name": "totalSeats",
+        "label": "Cantidad",
+        "type": "number",
+        "required": false,
+        "order": 4
+      },
+      {
+        "name": "unitCost",
+        "label": "Costo Unitario",
+        "type": "number",
+        "required": false,
+        "order": 5
+      },
+      {
+        "name": "totalCost",
+        "label": "Costo Total",
+        "type": "number",
+        "required": false,
+        "order": 6
+      },
+      {
+        "name": "purchaseDate",
+        "label": "Fecha de Compra",
+        "type": "date",
+        "required": false,
+        "order": 7
+      },
+      {
+        "name": "expirationDate",
+        "label": "Fecha de Expiración",
+        "type": "date",
+        "required": false,
+        "order": 8
+      },
+      {
+        "name": "invoiceFolio",
+        "label": "Folio de Factura",
+        "type": "text",
+        "required": false,
+        "order": 9
+      }
+    ],
+    "layout": "grid-2cols",
+    "lastModified": "2025-12-01T03:29:32.171Z",
+    "backupPath": "/Users/gilberto.amaro/GIT/Activos/frontend/src/views/LicensesView.backup_1764559772166.tsx"
+  },
+  "AssetForm": {
+    "fields": [
+      {
+        "name": "name",
+        "label": "Nombre",
+        "type": "text",
+        "required": false,
+        "order": 1
+      },
+      {
+        "name": "serialNumber",
+        "label": "Serie",
+        "type": "text",
+        "required": false,
+        "order": 2
+      },
+      {
+        "name": "operatingSystem",
+        "label": "Tipo",
+        "type": "text",
+        "required": false,
+        "order": 3
+      },
+      {
+        "name": "manufacturer",
+        "label": "Fabricante",
+        "type": "text",
+        "required": false,
+        "order": 4
+      },
+      {
+        "name": "model",
+        "label": "Modelo",
+        "type": "text",
+        "required": false,
+        "order": 5
+      },
+      {
+        "name": "cost",
+        "label": "Costo",
+        "type": "number",
+        "required": false,
+        "order": 6
+      },
+      {
+        "name": "purchaseDate",
+        "label": "Compra",
+        "type": "date",
+        "required": false,
+        "order": 7
+      },
+      {
+        "name": "warrantyUntil",
+        "label": "Garantía",
+        "type": "date",
+        "required": false,
+        "order": 8
+      },
+      {
+        "name": "assetTypeId",
+        "label": "Nombre",
+        "type": "select",
+        "required": false,
+        "order": 9
+      },
+      {
+        "name": "locationId",
+        "label": "Ubicación",
+        "type": "select",
+        "required": false,
+        "order": 10
+      },
+      {
+        "name": "responsibleId",
+        "label": "Responsable",
+        "type": "select",
+        "required": false,
+        "order": 11
+      },
+      {
+        "name": "state",
+        "label": "SO",
+        "type": "select",
+        "required": false,
+        "order": 12
+      },
+      {
+        "name": "notes",
+        "label": "Notes",
+        "type": "textarea",
+        "required": false,
+        "order": 13
+      }
+    ],
+    "layout": "grid-3cols",
+    "type": "form",
+    "lastModified": "2025-12-01T06:06:05.303Z",
+    "backupPath": "/Users/gilberto.amaro/GIT/Activos/frontend/src/components/AssetForm.backup_1764569165301.tsx"
+  }
+}

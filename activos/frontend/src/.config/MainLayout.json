@@ -1,0 +1,103 @@
+{
+  "menuItems": [
+    {
+      "path": "/dashboard",
+      "label": "Dashboard",
+      "icon": "📊",
+      "visible": true,
+      "order": 1
+    },
+    {
+      "path": "/users",
+      "label": "Usuarios",
+      "icon": "👥",
+      "visible": true,
+      "order": 2
+    },
+    {
+      "path": "/roles",
+      "label": "Roles",
+      "icon": "📋",
+      "visible": true,
+      "order": 3,
+      "parentPath": "/users"
+    },
+    {
+      "path": "/movements",
+      "label": "Movimientos",
+      "icon": "🔄",
+      "visible": true,
+      "order": 4
+    },
+    {
+      "path": "/assets",
+      "label": "Activos",
+      "icon": "📦",
+      "visible": true,
+      "order": 5,
+      "parentPath": "/movements"
+    },
+    {
+      "path": "/maintenance",
+      "label": "Mantenimientos",
+      "icon": "🔧",
+      "visible": true,
+      "order": 6,
+      "parentPath": "/movements"
+    },
+    {
+      "path": "/licenses",
+      "label": "Licencias",
+      "icon": "💿",
+      "visible": true,
+      "order": 7,
+      "parentPath": "/movements"
+    },
+    {
+      "path": "/vendors",
+      "label": "Proveedores",
+      "icon": "🏢",
+      "visible": true,
+      "order": 8,
+      "parentPath": "/movements"
+    },
+    {
+      "path": "/notifications",
+      "label": "Notificaciones",
+      "icon": "🔔",
+      "visible": true,
+      "order": 9
+    },
+    {
+      "path": "/reports",
+      "label": "Reportes",
+      "icon": "📈",
+      "visible": true,
+      "order": 10
+    },
+    {
+      "path": "/integrations",
+      "label": "Integraciones",
+      "icon": "🔗",
+      "visible": true,
+      "order": 11
+    },
+    {
+      "path": "/configuration",
+      "label": "Configuración",
+      "icon": "⚙️",
+      "visible": true,
+      "order": 12
+    },
+    {
+      "path": "/report-builder",
+      "label": "Reporteador",
+      "icon": "📝",
+      "visible": true,
+      "order": 13,
+      "parentPath": "/configuration"
+    }
+  ],
+  "type": "menu",
+  "title": "Gestión de Activos"
+}

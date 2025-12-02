@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "module": "commonjs",
+    "target": "es2020",
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["src/components/*"],
+      "@views/*": ["src/views/*"],
+      "@services/*": ["src/services/*"]
+    }
+  },
+  "include": ["vite.config.ts"]
+}

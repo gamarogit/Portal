@@ -1,0 +1,12 @@
+{
+  "name": "entrenamiento-sistema",
+  "version": "1.0.0",
+  "description": "Microservicio de gestión de capacitaciones y entrenamientos.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

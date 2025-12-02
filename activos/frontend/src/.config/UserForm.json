@@ -1,0 +1,31 @@
+{
+  "fields": [
+    {
+      "name": "name",
+      "label": "Name",
+      "type": "text",
+      "required": false,
+      "order": 1,
+      "visible": true
+    },
+    {
+      "name": "email",
+      "label": "Email",
+      "type": "email",
+      "required": false,
+      "order": 2,
+      "visible": true
+    },
+    {
+      "name": "roleId",
+      "label": "RoleId",
+      "type": "select",
+      "required": false,
+      "order": 3,
+      "visible": true
+    }
+  ],
+  "layout": "grid-2cols",
+  "type": "form",
+  "title": "Formulario"
+}

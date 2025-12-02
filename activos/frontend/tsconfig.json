@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "jsx": "react-jsx",
+    "moduleResolution": "node",
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@components/*": ["components/*"],
+      "@views/*": ["views/*"],
+      "@services/*": ["services/*"],
+      "@contexts/*": ["contexts/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.spec.tsx", "src/**/__tests__"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}

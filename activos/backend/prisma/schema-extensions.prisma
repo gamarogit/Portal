@@ -1,0 +1,85 @@
+// Extensión del schema.prisma - Agregar estos modelos al final del archivo
+
+enum LicenseStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  SUSPENDED
+}
+
+model License {
+  id              String           @id @default(uuid())
+  name            String
+  vendor          String
+  licenseKey      String?          // Encrypted in application layer
+  purchaseDate    DateTime
+  expirationDate  DateTime?
+  totalSeats      Int              @default(1)
+  usedSeats       Int              @default(0)
+  cost            Decimal?         @db.Decimal(12, 2)
+  contractNumber  String?
+  status          LicenseStatus    @default(ACTIVE)
+  notes           String?
+  assignments     LicenseAssignment[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model LicenseAssignment {
+  id          String    @id @default(uuid())
+  licenseId   String
+  license     License   @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
+  assetId     String?
+  asset       Asset?    @relation(fields: [assetId], references: [id])
+  assignedAt  DateTime  @default(now())
+  notes       String?
+  createdAt   DateTime  @default(now())
+}
+
+model Vendor {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  contactName String?
+  email       String?
+  phone       String?
+  website     String?
+  rating      Int?      // 1-5 stars
+  notes       String?
+  assets      Asset[]
+  contracts   MaintenanceContract[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model MaintenanceContract {
+  id           String        @id @default(uuid())
+  vendorId     String
+  vendor       Vendor        @relation(fields: [vendorId], references: [id])
+  name         String
+  startDate    DateTime
+  endDate      DateTime
+  cost         Decimal       @db.Decimal(12, 2)
+  scope        String?
+  sla          Json?         // { responseTime: "4h", resolutionTime: "24h" }
+  assets       Asset[]       @relation("ContractAssets")
+  maintenances Maintenance[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+// Modificaciones a modelos existentes (agregar estas relaciones):
+// En model User, agregar:
+//   licenseAssignments LicenseAssignment[]
+//
+// En model Asset, agregar:
+//   licenseAssignments LicenseAssignment[]
+//   vendorId           String?
+//   vendor             Vendor?             @relation(fields: [vendorId], references: [id])
+//   contractId         String?
+//   contract           MaintenanceContract? @relation("ContractAssets", fields: [contractId], references: [id])
+//
+// En model Maintenance, agregar:
+//   contractId String?
+//   contract   MaintenanceContract? @relation(fields: [contractId], references: [id])

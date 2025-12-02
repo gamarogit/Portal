@@ -1,0 +1,118 @@
+{
+  "fields": [
+    {
+      "name": "name",
+      "label": "Nombre",
+      "type": "text",
+      "required": false,
+      "order": 1,
+      "visible": true
+    },
+    {
+      "name": "serialNumber",
+      "label": "Serie",
+      "type": "text",
+      "required": false,
+      "order": 2,
+      "visible": true
+    },
+    {
+      "name": "operatingSystem",
+      "label": "Tipo",
+      "type": "text",
+      "required": false,
+      "order": 3,
+      "visible": true
+    },
+    {
+      "name": "manufacturer",
+      "label": "Fabricante",
+      "type": "text",
+      "required": false,
+      "order": 4,
+      "visible": true
+    },
+    {
+      "name": "model",
+      "label": "Modelo",
+      "type": "text",
+      "required": false,
+      "order": 5,
+      "visible": true
+    },
+    {
+      "name": "cost",
+      "label": "Costo",
+      "type": "number",
+      "required": false,
+      "order": 6,
+      "visible": true
+    },
+    {
+      "name": "purchaseDate",
+      "label": "Compra",
+      "type": "date",
+      "required": false,
+      "order": 7,
+      "visible": true
+    },
+    {
+      "name": "warrantyUntil",
+      "label": "Garantía",
+      "type": "date",
+      "required": false,
+      "order": 8,
+      "visible": true
+    },
+    {
+      "name": "assetTypeId",
+      "label": "Nombre",
+      "type": "select",
+      "required": false,
+      "order": 9,
+      "visible": true
+    },
+    {
+      "name": "locationId",
+      "label": "Ubicación",
+      "type": "select",
+      "required": false,
+      "order": 10,
+      "visible": true
+    },
+    {
+      "name": "responsibleId",
+      "label": "Responsable",
+      "type": "select",
+      "required": false,
+      "order": 11,
+      "visible": true
+    },
+    {
+      "name": "state",
+      "label": "Tipo",
+      "type": "select",
+      "required": false,
+      "order": 12,
+      "visible": true
+    },
+    {
+      "name": "notes",
+      "label": "Notes",
+      "type": "textarea",
+      "required": false,
+      "order": 13,
+      "visible": true
+    },
+    {
+      "name": "campo_1764605401037",
+      "label": "Memoria",
+      "type": "text",
+      "required": false,
+      "order": 14
+    }
+  ],
+  "layout": "grid-3cols",
+  "type": "form",
+  "title": "Formulario"
+}

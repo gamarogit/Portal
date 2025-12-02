@@ -1,0 +1,168 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+
+@Injectable()
+export class PortalService {
+  constructor(private prisma: PrismaService) {}
+
+  async getAllSystems() {
+    const systems = await this.prisma.portalSystem.findMany({
+      orderBy: { order: 'asc' },
+    });
+
+    return { systems };
+  }
+
+  async getEnabledSystems() {
+    const systems = await this.prisma.portalSystem.findMany({
+      where: { enabled: true },
+      orderBy: { order: 'asc' },
+    });
+
+    return { systems };
+  }
+
+  async getSystemById(id: string) {
+    return this.prisma.portalSystem.findUnique({
+      where: { id },
+    });
+  }
+
+  async createSystem(data: {
+    name: string;
+    description: string;
+    icon: string;
+    route: string;
+    color: string;
+    enabled?: boolean;
+    order?: number;
+  }) {
+    return this.prisma.portalSystem.create({
+      data: {
+        name: data.name,
+        description: data.description,
+        icon: data.icon,
+        route: data.route,
+        color: data.color,
+        enabled: data.enabled ?? true,
+        order: data.order ?? 0,
+      },
+    });
+  }
+
+  async updateSystem(
+    id: string,
+    data: {
+      name?: string;
+      description?: string;
+      icon?: string;
+      route?: string;
+      color?: string;
+      enabled?: boolean;
+      order?: number;
+    },
+  ) {
+    return this.prisma.portalSystem.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async deleteSystem(id: string) {
+    return this.prisma.portalSystem.delete({
+      where: { id },
+    });
+  }
+
+  async reorderSystems(systemIds: string[]) {
+    // Actualizar el orden de cada sistema
+    const updates = systemIds.map((id, index) =>
+      this.prisma.portalSystem.update({
+        where: { id },
+        data: { order: index },
+      }),
+    );
+
+    await this.prisma.$transaction(updates);
+
+    return { success: true, message: 'Sistemas reordenados correctamente' };
+  }
+
+  async seedDefaultSystems() {
+    // Verificar si ya existen sistemas
+    const count = await this.prisma.portalSystem.count();
+    if (count > 0) {
+      return { message: 'Ya existen sistemas configurados' };
+    }
+
+    // Crear sistemas por defecto
+    const defaultSystems = [
+      {
+        name: 'Gestión de Activos',
+        description: 'Sistema de inventario y control de activos TI',
+        icon: '💼',
+        route: '/assets',
+        color: '#667eea',
+        enabled: true,
+        order: 1,
+      },
+      {
+        name: 'Usuarios y Roles',
+        description: 'Administración de usuarios y permisos del sistema',
+        icon: '👥',
+        route: '/users',
+        color: '#f093fb',
+        enabled: true,
+        order: 2,
+      },
+      {
+        name: 'Reportes',
+        description: 'Generación y visualización de reportes',
+        icon: '📊',
+        route: '/reports',
+        color: '#4facfe',
+        enabled: true,
+        order: 3,
+      },
+      {
+        name: 'Mantenimiento',
+        description: 'Programación y seguimiento de mantenimientos',
+        icon: '🔧',
+        route: '/maintenance',
+        color: '#43e97b',
+        enabled: true,
+        order: 4,
+      },
+      {
+        name: 'Licencias',
+        description: 'Control y gestión de licencias de software',
+        icon: '📜',
+        route: '/licenses',
+        color: '#fa709a',
+        enabled: true,
+        order: 5,
+      },
+      {
+        name: 'Configuración',
+        description: 'Configuración general del sistema',
+        icon: '⚙️',
+        route: '/configuration',
+        color: '#a8edea',
+        enabled: true,
+        order: 6,
+      },
+    ];
+
+    for (const system of defaultSystems) {
+      await this.prisma.portalSystem.create({
+        data: system,
+      });
+    }
+
+    return { 
+      success: true, 
+      message: `${defaultSystems.length} sistemas creados correctamente`,
+      count: defaultSystems.length
+    };
+  }
+}
