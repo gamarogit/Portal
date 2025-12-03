@@ -5,6 +5,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { PortalModule } from './modules/portal/portal.module';
 import { ProxyModule } from './modules/proxy/proxy.module';
+import { PermissionsModule } from './modules/permissions/permissions.module';
 
 @Module({
   imports: [
@@ -12,21 +13,22 @@ import { ProxyModule } from './modules/proxy/proxy.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    
+
     // JWT global
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET || 'fallback-secret-change-in-production',
       signOptions: { expiresIn: '24h' },
     }),
-    
+
     // Prisma global
     PrismaModule,
-    
+
     // Módulos funcionales
     AuthModule,
     PortalModule,
     ProxyModule,
+    PermissionsModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }

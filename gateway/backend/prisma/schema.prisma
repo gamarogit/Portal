@@ -29,6 +29,10 @@ model User {
   auditLogs              AuditLog[]          @relation("performedBy")
   licenseAssignments     LicenseAssignment[]
   customReports          CustomReport[]
+  
+  // Permissions
+  systemPermissions      SystemPermission[]
+  featurePermissions     FeaturePermission[]
 }
 
 model Role {
@@ -52,6 +56,10 @@ model PortalSystem {
   order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  // Permissions
+  systemPermissions SystemPermission[]
+  features          SystemFeature[]
 }
 
 model ThemeConfig {
@@ -337,3 +345,47 @@ model FormConfig {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// --- PERMISSIONS MODELS ---
+
+model SystemPermission {
+  id        String       @id @default(uuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  systemId  String
+  system    PortalSystem @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  canAccess Boolean      @default(true)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@unique([userId, systemId])
+}
+
+model SystemFeature {
+  id          String              @id @default(uuid())
+  systemId    String
+  system      PortalSystem        @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  key         String              // ej: "assets.create", "assets.delete"
+  name        String              // ej: "Crear activos", "Eliminar activos"
+  description String?
+  category    String?             // ej: "Activos", "Reportes"
+  permissions FeaturePermission[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@unique([systemId, key])
+}
+
+model FeaturePermission {
+  id        String        @id @default(uuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  featureId String
+  feature   SystemFeature @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  granted   Boolean       @default(true)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([userId, featureId])
+}
+

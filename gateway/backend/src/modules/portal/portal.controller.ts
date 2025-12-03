@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
 import { PortalService } from './portal.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -16,12 +16,12 @@ export class PortalController {
   }
 
   /**
-   * Obtener sistemas habilitados (usuarios)
+   * Obtener sistemas habilitados filtrados por permisos del usuario
    */
   @Get('systems')
   @UseGuards(JwtAuthGuard)
-  async getEnabledSystems() {
-    return this.portalService.getEnabledSystems();
+  async getEnabledSystems(@Request() req) {
+    return this.portalService.getSystemsForUser(req.user.id);
   }
 
   /**

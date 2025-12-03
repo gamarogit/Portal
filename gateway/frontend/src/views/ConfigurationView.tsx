@@ -2,8 +2,9 @@ import { useState } from 'react';
 import AdminUsersView from './AdminUsersView';
 import AdminRolesView from './AdminRolesView';
 import AdminDesignView from './AdminDesignView';
+import AdminPermissionsView from './AdminPermissionsView';
 
-type Tab = 'users' | 'roles' | 'design';
+type Tab = 'users' | 'roles' | 'permissions' | 'design';
 
 export default function ConfigurationView() {
     const [activeTab, setActiveTab] = useState<Tab>('users');
@@ -47,6 +48,15 @@ export default function ConfigurationView() {
                             🛡️ Roles
                         </button>
                         <button
+                            onClick={() => setActiveTab('permissions')}
+                            className={`px-6 py-3 font-medium text-sm transition-colors relative ${activeTab === 'permissions'
+                                ? 'text-primary border-b-2 border-primary'
+                                : 'text-gray-500 hover:text-gray-700'
+                                }`}
+                        >
+                            🔐 Permisos
+                        </button>
+                        <button
                             onClick={() => setActiveTab('design')}
                             className={`px-6 py-3 font-medium text-sm transition-colors relative ${activeTab === 'design'
                                 ? 'text-primary border-b-2 border-primary'
@@ -62,6 +72,7 @@ export default function ConfigurationView() {
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                     {activeTab === 'users' && <AdminUsersView embedded={true} />}
                     {activeTab === 'roles' && <AdminRolesView embedded={true} />}
+                    {activeTab === 'permissions' && <AdminPermissionsView />}
                     {activeTab === 'design' && <AdminDesignView embedded={true} />}
                 </div>
             </div>

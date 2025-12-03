@@ -56,6 +56,33 @@ export class PortalService {
     return { systems: systems.map(this.transformSystemUrls.bind(this)) };
   }
 
+  async getSystemsForUser(userId: string) {
+    // Obtener el usuario con su rol
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { role: true },
+    });
+
+    // Si es ADMIN, devolver todos los sistemas habilitados
+    if (user?.role?.name === 'ADMIN') {
+      return this.getEnabledSystems();
+    }
+
+    // Obtener permisos de sistemas del usuario
+    const systemPermissions = await this.prisma.systemPermission.findMany({
+      where: { userId, canAccess: true },
+      include: { system: true },
+    });
+
+    // Filtrar solo sistemas habilitados
+    const allowedSystems = systemPermissions
+      .map(p => p.system)
+      .filter(s => s.enabled)
+      .sort((a, b) => a.order - b.order);
+
+    return { systems: allowedSystems.map(this.transformSystemUrls.bind(this)) };
+  }
+
   async getSystemById(id: string) {
     return this.prisma.portalSystem.findUnique({
       where: { id },

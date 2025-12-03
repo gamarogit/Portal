@@ -5,6 +5,7 @@ import LoginView from './views/LoginView';
 import SystemsView from './views/SystemsView';
 import AdminUsersView from './views/AdminUsersView';
 import AdminRolesView from './views/AdminRolesView';
+import AdminPermissionsView from './views/AdminPermissionsView';
 import ConfigurationView from './views/ConfigurationView';
 import PrivateRoute from './components/PrivateRoute';
 
@@ -36,6 +37,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <AdminRolesView />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/permissions"
+              element={
+                <PrivateRoute>
+                  <AdminPermissionsView />
                 </PrivateRoute>
               }
             />
