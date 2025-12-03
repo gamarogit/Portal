@@ -6,6 +6,8 @@ import SystemsView from './views/SystemsView';
 import AdminUsersView from './views/AdminUsersView';
 import AdminRolesView from './views/AdminRolesView';
 import AdminPermissionsView from './views/AdminPermissionsView';
+import InventoryView from './views/InventoryView';
+import QuickStockUpdateView from './views/QuickStockUpdateView';
 import ConfigurationView from './views/ConfigurationView';
 import PrivateRoute from './components/PrivateRoute';
 
@@ -45,6 +47,22 @@ function App() {
               element={
                 <PrivateRoute>
                   <AdminPermissionsView />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/inventory"
+              element={
+                <PrivateRoute>
+                  <InventoryView />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/inventory/quick-update"
+              element={
+                <PrivateRoute>
+                  <QuickStockUpdateView />
                 </PrivateRoute>
               }
             />

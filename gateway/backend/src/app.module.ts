@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { PortalModule } from './modules/portal/portal.module';
 import { ProxyModule } from './modules/proxy/proxy.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { PermissionsModule } from './modules/permissions/permissions.module';
     PortalModule,
     ProxyModule,
     PermissionsModule,
+    InventoryModule,
   ],
 })
 export class AppModule { }

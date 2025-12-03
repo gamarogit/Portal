@@ -109,13 +109,13 @@
 }
 
 .system-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 1rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: 1rem;
   margin-bottom: 1rem;
 }
 
