@@ -17,13 +17,21 @@
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .header-content h1 {
   font-size: 1.5rem;
   color: var(--color-primary);
   font-weight: 700;
+  margin-top: 0.5rem;
+}
+
+.header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
 }
 
 .user-info {
@@ -32,19 +40,59 @@
   gap: 1rem;
 }
 
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.notification-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  position: relative;
+  padding: 0.25rem;
+  transition: transform 0.2s;
+}
+
+.notification-button:hover {
+  transform: scale(1.1);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #ef4444;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+}
+
 .user-name {
   color: var(--color-secondary);
   font-weight: 500;
+  font-size: 0.9rem;
 }
 
 .logout-button {
   background: #fff;
   color: var(--color-primary);
-  border: 2px solid var(--color-primary);
-  padding: 0.5rem 1.5rem;
+  border: 1px solid var(--color-primary);
+  padding: 0.4rem 1rem;
   border-radius: 0.5rem;
   font-weight: 600;
+  font-size: 0.9rem;
   transition: all 0.2s;
+  cursor: pointer;
 }
 
 .logout-button:hover {
@@ -55,10 +103,11 @@
 .admin-button {
   background: #fff;
   color: var(--color-primary);
-  border: 2px solid var(--color-primary);
-  padding: 0.5rem 1.5rem;
+  border: 1px solid var(--color-primary);
+  padding: 0.4rem 1rem;
   border-radius: 0.5rem;
   font-weight: 600;
+  font-size: 0.9rem;
   transition: all 0.2s;
   cursor: pointer;
 }
@@ -88,15 +137,15 @@
 
 .systems-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
   margin-top: 2rem;
 }
 
 .system-card {
   background: white;
-  border-radius: 1rem;
-  padding: 2rem;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
   cursor: pointer;
   transition: all 0.3s ease;
   border-top: 4px solid;
@@ -104,23 +153,23 @@
 }
 
 .system-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
 .system-icon {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
-  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
 }
 
 .system-name {
-  font-size: 1.5rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--color-secondary);
   margin-bottom: 0.5rem;
@@ -128,20 +177,12 @@
 
 .system-description {
   color: #666;
-  line-height: 1.5;
-  margin-bottom: 1.5rem;
-}
-
-.system-footer {
-  padding-top: 1rem;
-  border-top: 1px solid #eee;
-}
-
-.system-link {
-  color: var(--color-primary);
-  font-weight: 600;
+  line-height: 1.4;
   font-size: 0.9rem;
+  margin-bottom: 0;
 }
+
+
 
 .loading-container {
   min-height: 100vh;

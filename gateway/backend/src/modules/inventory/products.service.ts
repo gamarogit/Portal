@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { StockMovementType } from '@prisma/client';
+import { ReorderAlertsService } from './reorder-alerts.service';
 
 @Injectable()
 export class ProductsService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly reorderAlertsService: ReorderAlertsService,
+    ) { }
 
     // Listar todos los productos
     async findAll(includeInactive = false) {
@@ -68,6 +72,9 @@ export class ProductsService {
         currentStock?: number;
         minStock?: number;
         maxStock?: number;
+        reorderPoint?: number;
+        optimalOrderQuantity?: number;
+        preferredSupplierId?: string;
         unitCost?: number;
         location?: string;
     }) {
@@ -87,6 +94,9 @@ export class ProductsService {
             unit?: string;
             minStock?: number;
             maxStock?: number;
+            reorderPoint?: number;
+            optimalOrderQuantity?: number;
+            preferredSupplierId?: string;
             unitCost?: number;
             location?: string;
             active?: boolean;
@@ -184,6 +194,12 @@ export class ProductsService {
 
         // Verificar y crear alertas si es necesario
         await this.checkStockAlerts(data.productId, newStock);
+
+        // Verificar punto de reorden y crear alerta de reabastecimiento si es necesario
+        await this.reorderAlertsService.createFromStockMovement(
+            data.productId,
+            newStock,
+        );
 
         return movement;
     }

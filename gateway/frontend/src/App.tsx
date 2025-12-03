@@ -8,6 +8,9 @@ import AdminRolesView from './views/AdminRolesView';
 import AdminPermissionsView from './views/AdminPermissionsView';
 import InventoryView from './views/InventoryView';
 import QuickStockUpdateView from './views/QuickStockUpdateView';
+import ReorderAlertsView from './views/ReorderAlertsView';
+import PurchaseOrdersView from './views/PurchaseOrdersView';
+import PurchaseOrderFormView from './views/PurchaseOrderFormView';
 import ConfigurationView from './views/ConfigurationView';
 import PrivateRoute from './components/PrivateRoute';
 
@@ -63,6 +66,30 @@ function App() {
               element={
                 <PrivateRoute>
                   <QuickStockUpdateView />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/inventory/reorder-alerts"
+              element={
+                <PrivateRoute>
+                  <ReorderAlertsView />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/inventory/purchase-orders"
+              element={
+                <PrivateRoute>
+                  <PurchaseOrdersView />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/inventory/purchase-orders/new"
+              element={
+                <PrivateRoute>
+                  <PurchaseOrderFormView />
                 </PrivateRoute>
               }
             />

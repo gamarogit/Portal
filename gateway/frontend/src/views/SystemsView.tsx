@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { systemsService, PortalSystem } from '../services/api';
+import { NotificationsPanel } from '../components/NotificationsPanel';
 import './SystemsView.css';
 
 const SystemsView: React.FC = () => {
@@ -10,6 +11,8 @@ const SystemsView: React.FC = () => {
   const [systems, setSystems] = useState<PortalSystem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     loadSystems();
@@ -70,27 +73,47 @@ const SystemsView: React.FC = () => {
       <header className="systems-header">
         <div className="header-content">
           <h1>Portal Empresarial</h1>
-          <div className="user-info">
-            <span className="user-name">👤 {user?.name || user?.email}</span>
-            {user?.role === 'ADMIN' && (
-              <button
-                onClick={() => navigate('/admin/configuration')}
-                className="admin-button"
-                style={{ marginRight: '10px' }}
-              >
-                ⚙️ Configuración
+          <div className="header-actions">
+            <div className="user-info">
+              <span className="user-name">👤 {user?.name || user?.email}</span>
+            </div>
+            <div className="header-buttons">
+              <div style={{ position: 'relative' }}>
+                <button
+                  className="notification-button"
+                  title="Notificaciones"
+                  onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                >
+                  📬
+                  {unreadCount > 0 && (
+                    <span className="notification-badge">{unreadCount}</span>
+                  )}
+                </button>
+                <NotificationsPanel
+                  isOpen={isNotificationsOpen}
+                  onClose={() => setIsNotificationsOpen(false)}
+                  onCountUpdate={setUnreadCount}
+                />
+              </div>
+              {user?.role === 'ADMIN' && (
+                <button
+                  onClick={() => navigate('/admin/configuration')}
+                  className="admin-button"
+                >
+                  ⚙️ Configuración
+                </button>
+              )}
+              <button onClick={logout} className="logout-button">
+                Cerrar Sesión
               </button>
-            )}
-            <button onClick={logout} className="logout-button">
-              Cerrar Sesión
-            </button>
+            </div>
           </div>
         </div>
       </header>
 
       <main className="systems-main">
         <div className="systems-content">
-          <h2 className="systems-title">Sistemas Disponibles</h2>
+
 
           {error && <div className="error-message">{error}</div>}
 
@@ -107,9 +130,7 @@ const SystemsView: React.FC = () => {
                 </div>
                 <h3 className="system-name">{system.name}</h3>
                 <p className="system-description">{system.description}</p>
-                <div className="system-footer">
-                  <span className="system-link">Abrir →</span>
-                </div>
+
               </div>
             ))}
           </div>

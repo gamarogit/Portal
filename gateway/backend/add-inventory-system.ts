@@ -7,11 +7,14 @@ async function addInventorySystem() {
 
     // Crear sistema de Inventarios
     const inventorySystem = await prisma.portalSystem.upsert({
-        where: { name: 'Inventarios' },
-        update: {},
+        where: { name: 'Compras e Inventarios' },
+        update: {
+            name: 'Compras e Inventarios',
+            description: 'Gestión integral de compras, reabastecimiento y control de inventarios'
+        },
         create: {
-            name: 'Inventarios',
-            description: 'Control de stock y gestión de inventarios',
+            name: 'Compras e Inventarios',
+            description: 'Gestión integral de compras, reabastecimiento y control de inventarios',
             icon: '📦',
             route: '/inventory',
             color: '#10b981',

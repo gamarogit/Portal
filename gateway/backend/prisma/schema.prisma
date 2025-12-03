@@ -299,19 +299,21 @@ model LicenseAssignment {
 }
 
 model Vendor {
-  id          String                @id @default(uuid())
-  name        String                @unique
-  contactName String?
-  email       String?
-  phone       String?
-  website     String?
-  address     String?
-  rating      Int?
-  notes       String?
-  assets      Asset[]
-  contracts   MaintenanceContract[]
-  createdAt   DateTime              @default(now())
-  updatedAt   DateTime              @updatedAt
+  id              String                @id @default(uuid())
+  name            String                @unique
+  contactName     String?
+  email           String?
+  phone           String?
+  website         String?
+  address         String?
+  rating          Int?
+  notes           String?
+  assets          Asset[]
+  contracts       MaintenanceContract[]
+  products        Product[]             // Productos que tienen este vendor como proveedor preferido
+  purchaseOrders  PurchaseOrder[]       // Órdenes de compra a este proveedor
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
 }
 
 model MaintenanceContract {
@@ -407,22 +409,28 @@ enum AlertType {
 }
 
 model Product {
-  id            String          @id @default(uuid())
-  sku           String          @unique
-  name          String
-  description   String?
-  category      String?
-  unit          String          @default("unidad") // unidad, kg, litro, etc.
-  currentStock  Int             @default(0)
-  minStock      Int             @default(0)
-  maxStock      Int?
-  unitCost      Decimal?        @db.Decimal(12, 2)
-  location      String?         // Ubicación en almacén
-  active        Boolean         @default(true)
-  movements     StockMovement[]
-  alerts        StockAlert[]
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  id                    String             @id @default(uuid())
+  sku                   String             @unique
+  name                  String
+  description           String?
+  category              String?
+  unit                  String             @default("unidad") // unidad, kg, litro, etc.
+  currentStock          Int                @default(0)
+  minStock              Int                @default(0)
+  maxStock              Int?
+  reorderPoint          Int?               // Punto de reorden
+  optimalOrderQuantity  Int?               // Cantidad óptima de compra
+  unitCost              Decimal?           @db.Decimal(12, 2)
+  location              String?            // Ubicación en almacén
+  preferredSupplierId   String?            // Proveedor preferido
+  preferredSupplier     Vendor?            @relation(fields: [preferredSupplierId], references: [id])
+  active                Boolean            @default(true)
+  movements             StockMovement[]
+  alerts                StockAlert[]
+  reorderAlerts         ReorderAlert[]
+  purchaseOrderItems    PurchaseOrderItem[]
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
 }
 
 model StockMovement {
@@ -455,3 +463,96 @@ model StockAlert {
   createdAt    DateTime  @default(now())
 }
 
+// --- PURCHASE ORDER MODELS ---
+
+enum ReorderAlertStatus {
+  PENDING
+  ORDERED
+  RESOLVED
+  IGNORED
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  SENT
+  RECEIVED
+  CANCELLED
+}
+
+model ReorderAlert {
+  id                String             @id @default(uuid())
+  productId         String
+  product           Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  currentStock      Int
+  reorderPoint      Int
+  suggestedQuantity Int
+  status            ReorderAlertStatus @default(PENDING)
+  purchaseOrderId   String?
+  purchaseOrder     PurchaseOrder?     @relation(fields: [purchaseOrderId], references: [id])
+  createdAt         DateTime           @default(now())
+  resolvedAt        DateTime?
+  notes             String?
+}
+
+model PurchaseOrder {
+  id              String              @id @default(uuid())
+  orderNumber     String              @unique
+  supplierId      String
+  supplier        Vendor              @relation(fields: [supplierId], references: [id])
+  status          PurchaseOrderStatus @default(DRAFT)
+  orderDate       DateTime            @default(now())
+  expectedDate    DateTime?
+  receivedDate    DateTime?
+  items           PurchaseOrderItem[]
+  reorderAlerts   ReorderAlert[]
+  totalAmount     Decimal?            @db.Decimal(12, 2)
+  notes           String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(uuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product       @relation(fields: [productId], references: [id])
+  quantity        Int
+  unitCost        Decimal       @db.Decimal(12, 2)
+  subtotal        Decimal       @db.Decimal(12, 2)
+  receivedQty     Int           @default(0)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+
+// --- NOTIFICATION MODELS ---
+
+enum NotificationType {
+  ALERT
+  APPROVAL
+  INFO
+}
+
+enum NotificationPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model Notification {
+  id        String               @id @default(uuid())
+  userId    String?              // Opcional: si es para un usuario específico
+  role      String?              // Opcional: si es para un rol (ej. ADMIN)
+  type      NotificationType
+  title     String
+  message   String
+  priority  NotificationPriority
+  link      String?              // Ruta a la acción
+  isRead    Boolean              @default(false)
+  createdAt DateTime             @default(now())
+  
+  // Relación polimórfica simplificada (referencias por ID)
+  sourceId   String? // ID del objeto relacionado (ReorderAlert.id, PurchaseOrder.id)
+  sourceType String? // REORDER_ALERT, PURCHASE_ORDER
+}
