@@ -27,14 +27,23 @@ export interface Notification {
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * Obtiene todas las notificaciones activas
    */
-  async getActiveNotifications(): Promise<Notification[]> {
+  /**
+   * Obtiene todas las notificaciones activas
+   */
+  async getActiveNotifications(user?: any): Promise<Notification[]> {
     const notifications: Notification[] = [];
     const now = new Date();
+
+    // Determinar si es admin
+    const isAdmin = user?.roles?.some(r => r.toLowerCase().includes('admin')) || false;
+
+    // Filtro de responsabilidad
+    const whereResponsible = (!user || isAdmin) ? {} : { responsibleId: user.id };
 
     // 1. Garantías por vencer (próximos 30 días)
     const warrantyExpiring = await this.prisma.asset.findMany({
@@ -44,6 +53,7 @@ export class NotificationService {
           lte: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000),
         },
         state: 'ACTIVO',
+        ...whereResponsible,
       },
       select: {
         id: true,
@@ -78,6 +88,7 @@ export class NotificationService {
           lte: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000),
         },
         status: 'PROGRAMADO',
+        asset: whereResponsible,
       },
       include: {
         asset: {
@@ -114,6 +125,7 @@ export class NotificationService {
           lt: now,
         },
         status: 'PROGRAMADO',
+        asset: whereResponsible,
       },
       include: {
         asset: {
@@ -143,38 +155,40 @@ export class NotificationService {
       });
     });
 
-    // 4. Activos sin responsable por más de 60 días
-    const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
-    const unassignedAssets = await this.prisma.asset.findMany({
-      where: {
-        responsibleId: null,
-        state: 'ACTIVO',
-        createdAt: {
-          lt: sixtyDaysAgo,
+    // 4. Activos sin responsable por más de 60 días (Solo admins)
+    if (!user || isAdmin) {
+      const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+      const unassignedAssets = await this.prisma.asset.findMany({
+        where: {
+          responsibleId: null,
+          state: 'ACTIVO',
+          createdAt: {
+            lt: sixtyDaysAgo,
+          },
         },
-      },
-      select: {
-        id: true,
-        name: true,
-        createdAt: true,
-      },
-    });
-
-    unassignedAssets.forEach((asset) => {
-      const daysUnassigned = Math.ceil(
-        (now.getTime() - asset.createdAt.getTime()) / (1000 * 60 * 60 * 24),
-      );
-      notifications.push({
-        id: `unassigned-${asset.id}`,
-        type: NotificationType.ASSET_UNASSIGNED,
-        severity: 'warning',
-        title: 'Activo sin responsable',
-        message: `El activo "${asset.name}" lleva ${daysUnassigned} días sin responsable asignado`,
-        assetId: asset.id,
-        assetName: asset.name,
-        createdAt: now,
+        select: {
+          id: true,
+          name: true,
+          createdAt: true,
+        },
       });
-    });
+
+      unassignedAssets.forEach((asset) => {
+        const daysUnassigned = Math.ceil(
+          (now.getTime() - asset.createdAt.getTime()) / (1000 * 60 * 60 * 24),
+        );
+        notifications.push({
+          id: `unassigned-${asset.id}`,
+          type: NotificationType.ASSET_UNASSIGNED,
+          severity: 'warning',
+          title: 'Activo sin responsable',
+          message: `El activo "${asset.name}" lleva ${daysUnassigned} días sin responsable asignado`,
+          assetId: asset.id,
+          assetName: asset.name,
+          createdAt: now,
+        });
+      });
+    }
 
     // Ordenar por severidad y fecha
     return notifications.sort((a, b) => {
@@ -210,7 +224,7 @@ export class NotificationService {
   async checkAndNotify() {
     this.logger.log('Ejecutando verificación de notificaciones...');
     const notifications = await this.getActiveNotifications();
-    
+
     const criticalCount = notifications.filter((n) => n.severity === 'critical').length;
     if (criticalCount > 0) {
       this.logger.warn(`Se encontraron ${criticalCount} notificaciones críticas`);

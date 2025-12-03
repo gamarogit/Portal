@@ -8,6 +8,8 @@ import { ProxyModule } from './modules/proxy/proxy.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -21,6 +23,12 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
       global: true,
       secret: process.env.JWT_SECRET || 'fallback-secret-change-in-production',
       signOptions: { expiresIn: '24h' },
+    }),
+
+    // Servir archivos estáticos
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'public'),
+      serveRoot: '/public',
     }),
 
     // Prisma global

@@ -1,7 +1,7 @@
 import { FormEvent, useState, useEffect, useMemo } from 'react';
 import { assetService, devService, AssetSummary, AssetType, Location, UserCatalog } from '@services/api';
-import { getFormConfig } from '@services/formConfig';
-import FieldReorderModal from './FieldReorderModal';
+
+
 
 type Props = {
   onCreated: () => void;
@@ -117,6 +117,12 @@ const ASSET_SPECS_CONFIG: Record<string, { label: string; key: string; type: 'te
     { label: 'Protocolo', key: 'protocol', type: 'select', options: ['IPsec', 'SSL/TLS', 'L2TP', 'WireGuard'] },
     { label: 'Usuario VPN', key: 'vpnUser', type: 'text' },
     { label: 'Grupo Acceso', key: 'accessGroup', type: 'text' },
+  ],
+  'Licencia': [
+    { label: 'Versión', key: 'version', type: 'text' },
+    { label: 'Usuarios/Seats', key: 'seats', type: 'number' },
+    { label: 'Tipo de Licencia', key: 'licenseType', type: 'select', options: ['Perpetua', 'Suscripción', 'Trial', 'OEM'] },
+    { label: 'Soporte', key: 'supportContact', type: 'text' },
   ],
 };
 
@@ -304,6 +310,12 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
     }
   };
 
+  // Detectar si es licencia para cambiar etiquetas
+  const isLicense = useMemo(() => {
+    const type = assetTypes.find(t => t.id === form.assetTypeId);
+    return type?.name === 'Licencia';
+  }, [form.assetTypeId, assetTypes]);
+
   // Definición de campos disponibles (ORDEN MANUAL DEFINIDO AQUÍ)
   const allFields = [
     {
@@ -329,10 +341,10 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
     },
     {
       name: 'manufacturer',
-      label: 'Fabricante',
+      label: isLicense ? 'Fabricante / Vendor' : 'Fabricante',
       render: () => (
         <div key="manufacturer" className="form-group">
-          <label>Fabricante</label>
+          <label>{isLicense ? 'Fabricante / Vendor' : 'Fabricante'}</label>
           <input
             type="text"
             name="manufacturer"
@@ -378,10 +390,10 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
     },
     {
       name: 'serialNumber',
-      label: 'Número de Serie',
+      label: isLicense ? 'Clave de Licencia / Serial' : 'Número de Serie',
       render: () => (
         <div key="serialNumber" className="form-group">
-          <label>Número de Serie</label>
+          <label>{isLicense ? 'Clave de Licencia / Serial' : 'Número de Serie'}</label>
           <input
             type="text"
             name="serialNumber"
@@ -513,10 +525,10 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
     },
     {
       name: 'warrantyUntil',
-      label: 'Garantía Hasta',
+      label: isLicense ? 'Vence / Expiración' : 'Garantía Hasta',
       render: () => (
         <div key="warrantyUntil" className="form-group">
-          <label>Garantía Hasta</label>
+          <label>{isLicense ? 'Vence / Expiración' : 'Garantía Hasta'}</label>
           <input
             type="date"
             name="warrantyUntil"
@@ -562,76 +574,12 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
     .filter(f => f !== undefined) as typeof allFields;
 
   // Estado para modal de reordenamiento
-  const [isReorderModalOpen, setIsReorderModalOpen] = useState(false);
 
-  const handleConfigSaved = () => {
-    // Pequeño delay para asegurar que el backend haya procesado la escritura
-    setTimeout(() => {
-      console.log('[AssetForm] Recargando configuración tras guardado...');
-      getFormConfig('AssetForm').then(config => {
-        console.log('[AssetForm] Configuración recargada:', config);
-        if (config) {
-          setFormConfig(config);
-        } else {
-          console.warn('[AssetForm] Configuración recargada es null');
-        }
-      });
-    }, 500);
-  };
-
-  const handleForceRefresh = () => {
-    getFormConfig('AssetForm').then(config => {
-      alert(`Configuración recargada: ${config ? 'OK' : 'NULL'}`);
-      if (config) setFormConfig(config);
-    });
-  };
-
-  // Extraer información de campos para el modal
-  const fieldsForModal = allFields.map(f => {
-    // Buscar orden actual
-    const currentOrder = orderedFieldNames.indexOf(f.name);
-
-    return {
-      name: f.name,
-      label: (f as any).label || f.name, // Usar label explícito
-      order: currentOrder !== -1 ? currentOrder : 999
-    };
-  });
-
-  const handleResetConfig = async () => {
-    if (!confirm('¿Estás seguro de restablecer el orden predeterminado? Se perderá tu configuración personalizada.')) return;
-
-    try {
-      // Enviar configuración vacía o null para borrar
-      // Asumimos que el backend maneja esto o simplemente guardamos un objeto vacío que activará el default en el frontend
-      const { default: api } = await import('@services/api');
-      await api.post('/form-config/AssetForm', { fields: [] }); // Guardar lista vacía
-
-      alert('Configuración restablecida. Recargando...');
-      handleForceRefresh();
-    } catch (e) {
-      console.error('Error al resetear:', e);
-      alert('Error al restablecer configuración');
-    }
-  };
-
-  const missingFields = useMemo(() => {
-    if (!formConfig?.fields) return [];
-    const configNames = new Set(formConfig.fields.map((f: any) => f.name));
-    return allFields.filter(f => !configNames.has(f.name)).map(f => f.label);
-  }, [formConfig, allFields]);
 
   return (
     <div className="card">
       <form onSubmit={submit}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h3>{assetToEdit ? 'Editar Activo' : 'Nuevo Activo'}</h3>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button type="button" onClick={() => setIsReorderModalOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }} title="Reordenar campos">
-              ⚙️
-            </button>
-          </div>
-        </div>
+
 
         {status && (
           <div className={`alert ${status.includes('Error') ? 'alert-error' : 'alert-success'}`} style={{ marginBottom: '1rem' }}>
@@ -688,17 +636,7 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
         </div>
       </form>
 
-      <FieldReorderModal
-        isOpen={isReorderModalOpen}
-        onClose={() => setIsReorderModalOpen(false)}
-        formName="AssetForm"
-        currentFields={orderedFieldNames.map((name, index) => ({
-          name,
-          label: allFields.find(f => f.name === name)?.label || name,
-          order: index
-        }))}
-        onConfigSaved={handleConfigSaved}
-      />
+
     </div>
   );
 }

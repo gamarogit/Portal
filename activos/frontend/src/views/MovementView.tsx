@@ -35,7 +35,7 @@ export default function MovementView() {
   const [filteredAssets, setFilteredAssets] = useState<Asset[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
-  
+
   const [locations, setLocations] = useState<Location[]>([]);
   const [filteredFromLocations, setFilteredFromLocations] = useState<Location[]>([]);
   const [filteredToLocations, setFilteredToLocations] = useState<Location[]>([]);
@@ -45,13 +45,13 @@ export default function MovementView() {
   const [showToDropdown, setShowToDropdown] = useState(false);
   const [isCreatingFromLocation, setIsCreatingFromLocation] = useState(false);
   const [isCreatingToLocation, setIsCreatingToLocation] = useState(false);
-  
+
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [responsibleSearchTerm, setResponsibleSearchTerm] = useState('');
   const [showResponsibleDropdown, setShowResponsibleDropdown] = useState(false);
   const [responsibleName, setResponsibleName] = useState('');
-  
+
   const [movements, setMovements] = useState<Movement[]>([]);
   const [sortColumn, setSortColumn] = useState<keyof Movement>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
@@ -77,17 +77,17 @@ export default function MovementView() {
   const sortedMovements = [...movements].sort((a, b) => {
     const aValue = a[sortColumn];
     const bValue = b[sortColumn];
-    
+
     if (aValue === undefined || aValue === null) return 1;
     if (bValue === undefined || bValue === null) return -1;
-    
+
     if (typeof aValue === 'string' && typeof bValue === 'string') {
-      return sortDirection === 'asc' 
-        ? aValue.localeCompare(bValue) 
+      return sortDirection === 'asc'
+        ? aValue.localeCompare(bValue)
         : bValue.localeCompare(aValue);
     }
-    
-    return sortDirection === 'asc' 
+
+    return sortDirection === 'asc'
       ? aValue > bValue ? 1 : -1
       : bValue > aValue ? 1 : -1;
   });
@@ -219,7 +219,7 @@ export default function MovementView() {
       setFilteredAssets(assets);
     } else {
       const term = searchTerm.toLowerCase();
-      const filtered = assets.filter(asset => 
+      const filtered = assets.filter(asset =>
         asset.name.toLowerCase().includes(term) ||
         (asset.serialNumber && asset.serialNumber.toLowerCase().includes(term))
       );
@@ -233,7 +233,7 @@ export default function MovementView() {
       setFilteredFromLocations(locations);
     } else {
       const term = fromSearchTerm.toLowerCase();
-      const filtered = locations.filter(loc => 
+      const filtered = locations.filter(loc =>
         loc.name.toLowerCase().includes(term)
       );
       setFilteredFromLocations(filtered);
@@ -246,7 +246,7 @@ export default function MovementView() {
       setFilteredToLocations(locations);
     } else {
       const term = toSearchTerm.toLowerCase();
-      const filtered = locations.filter(loc => 
+      const filtered = locations.filter(loc =>
         loc.name.toLowerCase().includes(term)
       );
       setFilteredToLocations(filtered);
@@ -259,7 +259,7 @@ export default function MovementView() {
       setFilteredUsers(users);
     } else {
       const term = responsibleSearchTerm.toLowerCase();
-      const filtered = users.filter(user => 
+      const filtered = users.filter(user =>
         user.name.toLowerCase().includes(term)
       );
       setFilteredUsers(filtered);
@@ -318,8 +318,19 @@ export default function MovementView() {
     }
   };
 
-      const submit = async (event: React.FormEvent) => {
+  const submit = async (event: React.FormEvent) => {
     event.preventDefault();
+
+    if (data.movementType === 'ALTA' || data.movementType === 'BAJA') {
+      const confirmed = window.confirm(
+        `⚠️ ADVERTENCIA DE INVENTARIO\n\n` +
+        `Estás a punto de registrar una ${data.movementType}.\n` +
+        `Esta acción afectará directamente el inventario del activo.\n\n` +
+        `¿Deseas continuar con el movimiento?`
+      );
+      if (!confirmed) return;
+    }
+
     setLoading(true);
     setStatus(null);
     try {
@@ -347,105 +358,246 @@ export default function MovementView() {
       </header>
       <form onSubmit={submit} className="card" style={{ padding: '1rem', fontSize: '0.9rem' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
-        <div style={{ position: 'relative' }}>
-          <label>
-            Activo *
-            <input 
-              value={searchTerm} 
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setShowDropdown(true);
-              }}
-              onFocus={() => setShowDropdown(true)}
-              placeholder="Buscar por nombre o número de serie..."
-              required 
-            />
-          </label>
-          {showDropdown && filteredAssets.length > 0 && (
-            <div style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              right: 0,
-              maxHeight: '200px',
-              overflowY: 'auto',
-              background: 'white',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              zIndex: 1000,
-              marginTop: '0.25rem'
-            }}>
-              {filteredAssets.slice(0, 10).map(asset => (
-                <div
-                  key={asset.id}
-                  onClick={() => handleSelectAsset(asset)}
-                  style={{
-                    padding: '0.5rem',
-                    cursor: 'pointer',
-                    borderBottom: '1px solid #eee',
-                    fontSize: '0.9rem'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f0f0f0'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
-                >
-                  <div style={{ fontWeight: 600 }}>{asset.name}</div>
-                  <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                    Serie: {asset.serialNumber || 'N/A'} | Tipo: {asset.assetType.name} | Estado: {asset.state}
+          <div style={{ position: 'relative' }}>
+            <label>
+              Activo *
+              <input
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setShowDropdown(true);
+                }}
+                onFocus={() => setShowDropdown(true)}
+                placeholder="Buscar por nombre o número de serie..."
+                required
+              />
+            </label>
+            {showDropdown && filteredAssets.length > 0 && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                maxHeight: '200px',
+                overflowY: 'auto',
+                background: 'white',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                zIndex: 1000,
+                marginTop: '0.25rem'
+              }}>
+                {filteredAssets.slice(0, 10).map(asset => (
+                  <div
+                    key={asset.id}
+                    onClick={() => handleSelectAsset(asset)}
+                    style={{
+                      padding: '0.5rem',
+                      cursor: 'pointer',
+                      borderBottom: '1px solid #eee',
+                      fontSize: '0.9rem'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#f0f0f0'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                  >
+                    <div style={{ fontWeight: 600 }}>{asset.name}</div>
+                    <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                      Serie: {asset.serialNumber || 'N/A'} | Tipo: {asset.assetType.name} | Estado: {asset.state}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-        <label>
-          Tipo
-          <select
-            value={data.movementType}
-            onChange={(e) => setData({ ...data, movementType: e.target.value as MovementPayload['movementType'] })}
-          >
-            <option value="ALTA">Alta</option>
-            <option value="BAJA">Baja</option>
-            <option value="TRASLADO">Traslado</option>
-          </select>
-        </label>
+                ))}
+              </div>
+            )}
+          </div>
+          <label>
+            Tipo
+            <select
+              value={data.movementType}
+              onChange={(e) => setData({ ...data, movementType: e.target.value as MovementPayload['movementType'] })}
+            >
+              <option value="ALTA">Alta</option>
+              <option value="BAJA">Baja</option>
+              <option value="TRASLADO">Traslado</option>
+            </select>
+          </label>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
-        <div style={{ position: 'relative' }}>
-          <label>
-            Desde (ubicación)
-            <input
-              value={fromSearchTerm}
-              onChange={(e) => {
-                setFromSearchTerm(e.target.value);
-                setShowFromDropdown(true);
-                setIsCreatingFromLocation(false);
-              }}
-              onFocus={() => setShowFromDropdown(true)}
-              placeholder="Buscar o crear ubicación..."
-            />
-          </label>
-          {showFromDropdown && (
-            <div style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              right: 0,
-              maxHeight: '200px',
-              overflowY: 'auto',
-              background: 'white',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              zIndex: 1000,
-              marginTop: '0.25rem'
-            }}>
-              {filteredFromLocations.length > 0 ? (
-                filteredFromLocations.slice(0, 10).map(location => (
+          <div style={{ position: 'relative' }}>
+            <label>
+              Desde (ubicación)
+              <input
+                value={fromSearchTerm}
+                onChange={(e) => {
+                  setFromSearchTerm(e.target.value);
+                  setShowFromDropdown(true);
+                  setIsCreatingFromLocation(false);
+                }}
+                onFocus={() => setShowFromDropdown(true)}
+                placeholder="Buscar o crear ubicación..."
+              />
+            </label>
+            {showFromDropdown && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                maxHeight: '200px',
+                overflowY: 'auto',
+                background: 'white',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                zIndex: 1000,
+                marginTop: '0.25rem'
+              }}>
+                {filteredFromLocations.length > 0 ? (
+                  filteredFromLocations.slice(0, 10).map(location => (
+                    <div
+                      key={location.id}
+                      onClick={() => handleSelectFromLocation(location)}
+                      style={{
+                        padding: '0.5rem',
+                        cursor: 'pointer',
+                        borderBottom: '1px solid #eee',
+                        fontSize: '0.9rem'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = '#f0f0f0'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                    >
+                      <div style={{ fontWeight: 600 }}>{location.name}</div>
+                      {location.description && (
+                        <div style={{ fontSize: '0.8rem', color: '#666' }}>{location.description}</div>
+                      )}
+                    </div>
+                  ))
+                ) : (
                   <div
-                    key={location.id}
-                    onClick={() => handleSelectFromLocation(location)}
+                    onClick={() => {
+                      setIsCreatingFromLocation(true);
+                      handleCreateFromLocation();
+                    }}
+                    style={{
+                      padding: '0.5rem',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem',
+                      color: '#0066cc',
+                      fontWeight: 600
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#f0f0f0'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                  >
+                    ➕ Crear nueva ubicación: "{fromSearchTerm}"
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <div style={{ position: 'relative' }}>
+            <label>
+              Hasta (ubicación)
+              <input
+                value={toSearchTerm}
+                onChange={(e) => {
+                  setToSearchTerm(e.target.value);
+                  setShowToDropdown(true);
+                  setIsCreatingToLocation(false);
+                }}
+                onFocus={() => setShowToDropdown(true)}
+                placeholder="Buscar o crear ubicación..."
+              />
+            </label>
+            {showToDropdown && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                maxHeight: '200px',
+                overflowY: 'auto',
+                background: 'white',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                zIndex: 1000,
+                marginTop: '0.25rem'
+              }}>
+                {filteredToLocations.length > 0 ? (
+                  filteredToLocations.slice(0, 10).map(location => (
+                    <div
+                      key={location.id}
+                      onClick={() => handleSelectToLocation(location)}
+                      style={{
+                        padding: '0.5rem',
+                        cursor: 'pointer',
+                        borderBottom: '1px solid #eee',
+                        fontSize: '0.9rem'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = '#f0f0f0'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                    >
+                      <div style={{ fontWeight: 600 }}>{location.name}</div>
+                      {location.description && (
+                        <div style={{ fontSize: '0.8rem', color: '#666' }}>{location.description}</div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div
+                    onClick={() => {
+                      setIsCreatingToLocation(true);
+                      handleCreateToLocation();
+                    }}
+                    style={{
+                      padding: '0.5rem',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem',
+                      color: '#0066cc',
+                      fontWeight: 600
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#f0f0f0'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                  >
+                    ➕ Crear nueva ubicación: "{toSearchTerm}"
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <div style={{ position: 'relative' }}>
+            <label>
+              Responsable
+              <input
+                value={responsibleSearchTerm}
+                onChange={(e) => {
+                  setResponsibleSearchTerm(e.target.value);
+                  setResponsibleName(e.target.value);
+                  setShowResponsibleDropdown(true);
+                }}
+                onFocus={() => setShowResponsibleDropdown(true)}
+                placeholder="Buscar usuario o escribir nombre..."
+              />
+            </label>
+            {showResponsibleDropdown && filteredUsers.length > 0 && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                maxHeight: '200px',
+                overflowY: 'auto',
+                background: 'white',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                zIndex: 1000,
+                marginTop: '0.25rem'
+              }}>
+                {filteredUsers.slice(0, 10).map(user => (
+                  <div
+                    key={user.id}
+                    onClick={() => handleSelectResponsible(user)}
                     style={{
                       padding: '0.5rem',
                       cursor: 'pointer',
@@ -455,156 +607,15 @@ export default function MovementView() {
                     onMouseEnter={(e) => e.currentTarget.style.background = '#f0f0f0'}
                     onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
                   >
-                    <div style={{ fontWeight: 600 }}>{location.name}</div>
-                    {location.description && (
-                      <div style={{ fontSize: '0.8rem', color: '#666' }}>{location.description}</div>
+                    <div style={{ fontWeight: 600 }}>{user.name}</div>
+                    {user.email && (
+                      <div style={{ fontSize: '0.8rem', color: '#666' }}>{user.email}</div>
                     )}
                   </div>
-                ))
-              ) : (
-                <div
-                  onClick={() => {
-                    setIsCreatingFromLocation(true);
-                    handleCreateFromLocation();
-                  }}
-                  style={{
-                    padding: '0.5rem',
-                    cursor: 'pointer',
-                    fontSize: '0.9rem',
-                    color: '#0066cc',
-                    fontWeight: 600
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f0f0f0'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
-                >
-                  ➕ Crear nueva ubicación: "{fromSearchTerm}"
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-        <div style={{ position: 'relative' }}>
-          <label>
-            Hasta (ubicación)
-            <input
-              value={toSearchTerm}
-              onChange={(e) => {
-                setToSearchTerm(e.target.value);
-                setShowToDropdown(true);
-                setIsCreatingToLocation(false);
-              }}
-              onFocus={() => setShowToDropdown(true)}
-              placeholder="Buscar o crear ubicación..."
-            />
-          </label>
-          {showToDropdown && (
-            <div style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              right: 0,
-              maxHeight: '200px',
-              overflowY: 'auto',
-              background: 'white',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              zIndex: 1000,
-              marginTop: '0.25rem'
-            }}>
-              {filteredToLocations.length > 0 ? (
-                filteredToLocations.slice(0, 10).map(location => (
-                  <div
-                    key={location.id}
-                    onClick={() => handleSelectToLocation(location)}
-                    style={{
-                      padding: '0.5rem',
-                      cursor: 'pointer',
-                      borderBottom: '1px solid #eee',
-                      fontSize: '0.9rem'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = '#f0f0f0'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
-                  >
-                    <div style={{ fontWeight: 600 }}>{location.name}</div>
-                    {location.description && (
-                      <div style={{ fontSize: '0.8rem', color: '#666' }}>{location.description}</div>
-                    )}
-                  </div>
-                ))
-              ) : (
-                <div
-                  onClick={() => {
-                    setIsCreatingToLocation(true);
-                    handleCreateToLocation();
-                  }}
-                  style={{
-                    padding: '0.5rem',
-                    cursor: 'pointer',
-                    fontSize: '0.9rem',
-                    color: '#0066cc',
-                    fontWeight: 600
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f0f0f0'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
-                >
-                  ➕ Crear nueva ubicación: "{toSearchTerm}"
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-        <div style={{ position: 'relative' }}>
-          <label>
-            Responsable
-            <input
-              value={responsibleSearchTerm}
-              onChange={(e) => {
-                setResponsibleSearchTerm(e.target.value);
-                setResponsibleName(e.target.value);
-                setShowResponsibleDropdown(true);
-              }}
-              onFocus={() => setShowResponsibleDropdown(true)}
-              placeholder="Buscar usuario o escribir nombre..."
-            />
-          </label>
-          {showResponsibleDropdown && filteredUsers.length > 0 && (
-            <div style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              right: 0,
-              maxHeight: '200px',
-              overflowY: 'auto',
-              background: 'white',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              zIndex: 1000,
-              marginTop: '0.25rem'
-            }}>
-              {filteredUsers.slice(0, 10).map(user => (
-                <div
-                  key={user.id}
-                  onClick={() => handleSelectResponsible(user)}
-                  style={{
-                    padding: '0.5rem',
-                    cursor: 'pointer',
-                    borderBottom: '1px solid #eee',
-                    fontSize: '0.9rem'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f0f0f0'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
-                >
-                  <div style={{ fontWeight: 600 }}>{user.name}</div>
-                  {user.email && (
-                    <div style={{ fontSize: '0.8rem', color: '#666' }}>{user.email}</div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <label style={{ gridColumn: '1 / -1' }}>
@@ -664,14 +675,14 @@ export default function MovementView() {
                           .then(() => loadMovements())
                           .catch(err => console.error('Error actualizando estatus:', err));
                       }}
-                      style={{ 
-                        padding: '0.25rem', 
+                      style={{
+                        padding: '0.25rem',
                         fontSize: '0.8rem',
                         borderRadius: '4px',
                         border: '1px solid #ddd',
-                        background: movement.status === 'REALIZADO' ? '#d4edda' : 
-                                   movement.status === 'EN_CURSO' ? '#fff3cd' : 
-                                   movement.status === 'CANCELADO' ? '#f8d7da' : '#e7f3ff'
+                        background: movement.status === 'REALIZADO' ? '#d4edda' :
+                          movement.status === 'EN_CURSO' ? '#fff3cd' :
+                            movement.status === 'CANCELADO' ? '#f8d7da' : '#e7f3ff'
                       }}
                     >
                       <option value="PENDIENTE">Pendiente</option>
@@ -685,13 +696,13 @@ export default function MovementView() {
                   </td>
                   <td style={{ padding: '0.5rem' }}>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <button 
+                      <button
                         onClick={() => generatePDF(movement)}
                         style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', background: '#2563eb', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                       >
                         Imprimir
                       </button>
-                      <button 
+                      <button
                         onClick={() => {
                           if (confirm('¿Eliminar este movimiento?')) {
                             // TODO: Implementar eliminación

@@ -40,7 +40,7 @@ export default function UsersView() {
             onClick={() => setIsCreating(true)}
             style={{
               padding: '0.5rem 1rem',
-              backgroundColor: '#2563eb',
+              backgroundColor: 'var(--color-primary, #2563eb)',
               color: 'white',
               border: 'none',
               borderRadius: '0.375rem',

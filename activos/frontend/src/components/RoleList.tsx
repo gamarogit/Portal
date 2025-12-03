@@ -50,13 +50,14 @@ export default function RoleList({ roles, onEdit, onDelete }: Props) {
               <td>{role._count?.users || 0}</td>
               <td>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button onClick={() => onEdit(role)} className="small">
+                  <button onClick={() => onEdit(role)} className="btn-sm">
                     ✏️ Editar
                   </button>
-                  <button 
-                    onClick={() => handleDelete(role)} 
-                    className="small danger"
+                  <button
+                    onClick={() => handleDelete(role)}
+                    className="btn-sm danger"
                     disabled={role._count && role._count.users > 0}
+                    style={{ color: '#dc2626', borderColor: '#fecaca' }}
                   >
                     🗑️ Eliminar
                   </button>

@@ -160,7 +160,7 @@ export default function LoginView() {
             {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
           </button>
         </form>
-        <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#666', fontSize: '0.9rem' }}>
+        <p style={{ textAlign: 'center', marginTop: '1.5rem', color: theme.secondaryColor, fontSize: '0.9rem' }}>
           💡 Credenciales por defecto: admin@portal.com / admin123
         </p>
       </div>

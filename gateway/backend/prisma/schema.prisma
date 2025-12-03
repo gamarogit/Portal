@@ -72,6 +72,7 @@ model ThemeConfig {
   accentColor    String   @default("#d9c79e")
   backgroundColor String  @default("#f0f2f5")
   fontFamily     String   @default("Montserrat")
+  portalName     String   @default("Portal Empresarial")
   logoUrl        String?
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { systemsService, PortalSystem } from '../services/api';
+import { systemsService, PortalSystem, api } from '../services/api';
 import { NotificationsPanel } from '../components/NotificationsPanel';
 import './SystemsView.css';
 
@@ -13,9 +13,11 @@ const SystemsView: React.FC = () => {
   const [error, setError] = useState('');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [theme, setTheme] = useState<any>(null);
 
   useEffect(() => {
     loadSystems();
+    loadTheme();
   }, []);
 
   const loadSystems = async () => {
@@ -26,6 +28,28 @@ const SystemsView: React.FC = () => {
       setError(err.response?.data?.message || 'Error al cargar los sistemas');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadTheme = async () => {
+    try {
+      const response = await api.get('/portal/theme');
+      setTheme(response.data);
+    } catch (error) {
+      console.error('Error loading theme:', error);
+    }
+  };
+
+  const transformUrl = (url: string | null | undefined) => {
+    if (!url) return '';
+    try {
+      const parsedUrl = new URL(url);
+      if (parsedUrl.hostname === 'localhost' && window.location.hostname !== 'localhost') {
+        parsedUrl.hostname = window.location.hostname;
+      }
+      return parsedUrl.toString();
+    } catch {
+      return url;
     }
   };
 
@@ -72,7 +96,12 @@ const SystemsView: React.FC = () => {
     <div className="systems-container">
       <header className="systems-header">
         <div className="header-content">
-          <h1>Portal Empresarial</h1>
+          <div className="flex items-center gap-3">
+            {theme?.logoUrl && (
+              <img src={transformUrl(theme.logoUrl)} alt="Logo" className="h-8 w-auto object-contain" />
+            )}
+            <h1>{theme?.portalName || 'Portal Empresarial'}</h1>
+          </div>
           <div className="header-actions">
             <div className="user-info">
               <span className="user-name">👤 {user?.name || user?.email}</span>

@@ -253,6 +253,7 @@ export class PortalService {
     accentColor?: string;
     backgroundColor?: string;
     logoUrl?: string;
+    portalName?: string;
   }) {
     const theme = await this.getTheme();
 

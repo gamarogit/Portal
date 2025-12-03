@@ -9,15 +9,33 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "strict": true,
+    "noEmit": true,
     "baseUrl": "./src",
     "paths": {
-      "@components/*": ["components/*"],
-      "@views/*": ["views/*"],
-      "@services/*": ["services/*"],
-      "@contexts/*": ["contexts/*"]
+      "@components/*": [
+        "components/*"
+      ],
+      "@views/*": [
+        "views/*"
+      ],
+      "@services/*": [
+        "services/*"
+      ],
+      "@contexts/*": [
+        "contexts/*"
+      ]
     }
   },
-  "include": ["src/**/*"],
-  "exclude": ["src/**/*.spec.tsx", "src/**/__tests__"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "src/**/*.spec.tsx",
+    "src/**/__tests__"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }

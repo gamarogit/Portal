@@ -87,7 +87,7 @@ export default function RoleForm({ onCreated, roleToEdit, onUpdated, onCancel }:
         <legend>📋 Información del rol</legend>
         <div className="asset-form-grid">
           <label>
-            Nombre del rol <span className="required">*</span>
+            <span>Nombre del rol <span className="required">*</span></span>
             <input
               value={form.name}
               onChange={(e) => handleChange('name', e.target.value)}

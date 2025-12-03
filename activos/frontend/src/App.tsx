@@ -9,7 +9,7 @@ import IntegrationsView from '@views/IntegrationsView';
 import UsersView from '@views/UsersView';
 import RolesView from '@views/RolesView';
 import DashboardView from '@views/DashboardView';
-import LicensesView from '@views/LicensesView';
+// import LicensesView from '@views/LicensesView';
 import VendorsView from '@views/VendorsView';
 import NotificationsView from '@views/NotificationsView';
 import ReportBuilderView from '@views/ReportBuilderView';
@@ -37,7 +37,7 @@ function App() {
         <Route path="/integrations" element={<IntegrationsView />} />
         <Route path="/users" element={<UsersView />} />
         <Route path="/roles" element={<RolesView />} />
-        <Route path="/licenses" element={<LicensesView />} />
+        {/* <Route path="/licenses" element={<LicensesView />} /> */}
         <Route path="/vendors" element={<VendorsView />} />
         <Route path="/notifications" element={<NotificationsView />} />
         <Route path="/report-builder" element={<ReportBuilderView />} />

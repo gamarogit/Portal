@@ -9,6 +9,7 @@ interface ThemeConfig {
     backgroundColor: string;
     fontFamily: string;
     logoUrl: string | null;
+    portalName: string;
 }
 
 interface Props {
@@ -25,6 +26,8 @@ export default function AdminDesignView({ embedded = false }: Props) {
         accentColor: '#d9c79e',
         backgroundColor: '#f0f2f5',
         fontFamily: 'Montserrat',
+        portalName: 'Portal Empresarial',
+        logoUrl: '',
     });
 
     const fontOptions = [
@@ -75,11 +78,33 @@ export default function AdminDesignView({ embedded = false }: Props) {
                 accentColor: response.data.accentColor,
                 backgroundColor: response.data.backgroundColor,
                 fontFamily: response.data.fontFamily || 'Montserrat',
+                portalName: response.data.portalName || 'Portal Empresarial',
+                logoUrl: response.data.logoUrl || '',
             });
         } catch (error) {
             console.error('Error al cargar tema:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await api.post('/portal/upload/logo', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            setFormData(prev => ({ ...prev, logoUrl: response.data.url }));
+        } catch (error) {
+            console.error('Error al subir logo:', error);
+            alert('Error al subir el logo');
         }
     };
 
@@ -112,8 +137,50 @@ export default function AdminDesignView({ embedded = false }: Props) {
                     </div>
                 )}
 
-                <div className={`${!embedded ? 'bg-white rounded-lg shadow-sm p-4' : ''}`}>
+                <div className={`${!embedded ? 'bg-white rounded-lg shadow-sm p-4' : 'p-4'}`}>
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Sección de Identidad */}
+                        <div>
+                            <h3 className="text-sm font-semibold text-gray-900 mb-3 border-b pb-2">Identidad de Marca</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                                        Nombre del Portal
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.portalName}
+                                        onChange={(e) => setFormData({ ...formData, portalName: e.target.value })}
+                                        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="Ej: Mi Empresa"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                                        Logo del Portal
+                                    </label>
+                                    <div className="flex flex-col gap-2">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleLogoUpload}
+                                            className="block w-full text-xs text-gray-500
+                                                file:mr-2 file:py-1.5 file:px-3
+                                                file:rounded file:border-0
+                                                file:text-xs file:font-semibold
+                                                file:bg-blue-50 file:text-blue-700
+                                                hover:file:bg-blue-100"
+                                        />
+                                    </div>
+                                    {formData.logoUrl && (
+                                        <div className="mt-2 p-2 border rounded bg-gray-50 flex justify-center">
+                                            <img src={formData.logoUrl} alt="Logo Preview" className="h-8 object-contain" />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Sección de Tipografía */}
                         <div>
                             <h3 className="text-sm font-semibold text-gray-900 mb-3 border-b pb-2">Tipografía</h3>
@@ -255,7 +322,7 @@ export default function AdminDesignView({ embedded = false }: Props) {
                                         className="w-1/4 h-24 rounded shadow-sm flex items-center justify-center text-white font-bold text-sm"
                                         style={{ backgroundColor: formData.primaryColor }}
                                     >
-                                        Primario
+                                        {formData.portalName.substring(0, 10)}
                                     </div>
                                     <div className="w-3/4 space-y-3">
                                         <div className="h-6 w-1/3 rounded" style={{ backgroundColor: formData.secondaryColor }}></div>

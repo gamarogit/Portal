@@ -6,7 +6,7 @@ import { SearchAssetsDto } from './dto/search-assets.dto';
 
 @Injectable()
 export class AssetService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findAll() {
     const assets = await this.prisma.asset.findMany({
@@ -29,7 +29,7 @@ export class AssetService {
       operatingSystem: asset.operatingSystem,
       assetType: asset.assetType ? { name: asset.assetType.name } : undefined,
       location: asset.location ? { name: asset.location.name } : undefined,
-      responsible: asset.responsible ? { name: asset.responsible.name } : undefined,
+      responsible: asset.responsible ? { name: asset.responsible.name, email: asset.responsible.email } : undefined,
     }));
   }
 
@@ -135,7 +135,7 @@ export class AssetService {
         operatingSystem: asset.operatingSystem,
         assetType: asset.assetType ? { id: asset.assetType.id, name: asset.assetType.name } : undefined,
         location: asset.location ? { id: asset.location.id, name: asset.location.name } : undefined,
-        responsible: asset.responsible ? { id: asset.responsible.id, name: asset.responsible.name } : undefined,
+        responsible: asset.responsible ? { id: asset.responsible.id, name: asset.responsible.name, email: asset.responsible.email } : undefined,
       })),
       pagination: {
         total,
@@ -177,7 +177,7 @@ export class AssetService {
       responsibleId: asset.responsibleId,
       assetType: asset.assetType ? { name: asset.assetType.name } : undefined,
       location: asset.location ? { name: asset.location.name } : undefined,
-      responsible: asset.responsible ? { name: asset.responsible.name } : undefined,
+      responsible: asset.responsible ? { name: asset.responsible.name, email: asset.responsible.email } : undefined,
     };
   }
 
@@ -223,7 +223,7 @@ export class AssetService {
         notes: asset.notes,
         assetType: asset.assetType ? { name: asset.assetType.name } : undefined,
         location: asset.location ? { name: asset.location.name } : undefined,
-        responsible: asset.responsible ? { name: asset.responsible.name } : undefined,
+        responsible: asset.responsible ? { name: asset.responsible.name, email: asset.responsible.email } : undefined,
       };
     } catch (error: unknown) {
       if (error instanceof Error && 'code' in error && (error as any).code === 'P2003') {
@@ -269,8 +269,8 @@ export class AssetService {
     const result = await (type === 'assetType'
       ? this.prisma.assetType.findUnique({ where: { id } })
       : type === 'location'
-      ? this.prisma.location.findUnique({ where: { id } })
-      : this.prisma.user.findUnique({ where: { id } }));
+        ? this.prisma.location.findUnique({ where: { id } })
+        : this.prisma.user.findUnique({ where: { id } }));
 
     return result !== null;
   }
@@ -282,8 +282,8 @@ export class AssetService {
     return (type === 'assetType'
       ? this.prisma.assetType.findUnique({ where: { name } })
       : type === 'location'
-      ? this.prisma.location.findFirst({ where: { name } })
-      : this.prisma.user.findFirst({ where: { name } })) as Promise<{ id: string } | null>;
+        ? this.prisma.location.findFirst({ where: { name } })
+        : this.prisma.user.findFirst({ where: { name } })) as Promise<{ id: string } | null>;
   }
 
   private async createCatalog(
@@ -294,8 +294,8 @@ export class AssetService {
       type === 'assetType'
         ? await this.prisma.assetType.create({ data: { name } })
         : type === 'location'
-        ? await this.prisma.location.create({ data: { name, type: 'general' } })
-        : await this.prisma.user.create({ data: { name, email: `${name.toLowerCase().replace(/\s+/g, '.')}@temp.local` } });
+          ? await this.prisma.location.create({ data: { name, type: 'general' } })
+          : await this.prisma.user.create({ data: { name, email: `${name.toLowerCase().replace(/\s+/g, '.')}@temp.local` } });
 
     return created.id;
   }
@@ -357,7 +357,7 @@ export class AssetService {
         notes: asset.notes,
         assetType: asset.assetType ? { name: asset.assetType.name } : undefined,
         location: asset.location ? { name: asset.location.name } : undefined,
-        responsible: asset.responsible ? { name: asset.responsible.name } : undefined,
+        responsible: asset.responsible ? { name: asset.responsible.name, email: asset.responsible.email } : undefined,
       };
     } catch (error: unknown) {
       if (error instanceof Error && 'code' in error && (error as any).code === 'P2003') {

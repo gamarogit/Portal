@@ -27,9 +27,9 @@ const defaultMenuItems: MenuItem[] = [
   { path: '/assets', label: 'Activos', icon: '📦', visible: true, order: 5 },
   { path: '/movements', label: 'Movimientos', icon: '🔄', visible: true, order: 6 },
   { path: '/maintenance', label: 'Mantenimientos', icon: '🔧', visible: true, order: 7 },
-  { path: '/licenses', label: 'Licencias', icon: '💿', visible: true, order: 8 },
+  // { path: '/licenses', label: 'Licencias', icon: '💿', visible: true, order: 8 }, // Removed
   { path: '/vendors', label: 'Proveedores', icon: '🏢', visible: true, order: 9 },
-  { path: '/notifications', label: 'Notificaciones', icon: '🔔', visible: true, order: 10 },
+  // { path: '/notifications', label: 'Notificaciones', icon: '🔔', visible: true, order: 10 }, // Moved to header
   { path: '/reports', label: 'Reportes', icon: '📈', visible: true, order: 11 },
   { path: '/report-builder', label: 'Reporteador', icon: '📝', visible: true, order: 12 },
   { path: '/configuration', label: 'Configuración', icon: '⚙️', visible: true, order: 13 },
@@ -90,7 +90,7 @@ export default function MainLayout({ children }: Props) {
 
   return (
     <div className="app-shell" style={{ fontFamily: theme?.fontFamily ? `"${theme.fontFamily}", sans-serif` : 'sans-serif' }}>
-      <aside style={{ backgroundColor: theme?.primaryColor || '#0f172a' }}>
+      <aside>
         <h1 style={{ fontSize: '1.1rem', margin: '0 0 8px 0', fontWeight: '600', color: 'white' }}>{menuTitle}</h1>
         <nav>
           {menuItems
@@ -99,22 +99,13 @@ export default function MainLayout({ children }: Props) {
               const children = menuItems.filter(child => child.parentPath === item.path && child.visible);
               return (
                 <div key={item.path}>
-                  <NavLink to={item.path} style={({ isActive }) => ({
-                    color: isActive ? 'white' : 'rgba(255, 255, 255, 0.7)',
-                    fontWeight: isActive ? 'bold' : 'normal',
-                    backgroundColor: isActive ? 'rgba(255, 255, 255, 0.1)' : 'transparent'
-                  })}>
+                  <NavLink to={item.path}>
                     {item.icon} {item.label}
                   </NavLink>
                   {children.length > 0 && (
                     <div style={{ paddingLeft: '20px', borderLeft: '1px solid rgba(255, 255, 255, 0.2)', marginLeft: '10px' }}>
                       {children.map((child) => (
-                        <NavLink key={child.path} to={child.path} style={({ isActive }) => ({
-                          fontSize: '0.9em',
-                          padding: '8px 15px',
-                          color: isActive ? 'white' : 'rgba(255, 255, 255, 0.7)',
-                          fontWeight: isActive ? 'bold' : 'normal'
-                        })}>
+                        <NavLink key={child.path} to={child.path} style={{ fontSize: '0.9em', padding: '8px 15px' }}>
                           {child.icon} {child.label}
                         </NavLink>
                       ))}
@@ -124,13 +115,9 @@ export default function MainLayout({ children }: Props) {
               );
             })}
         </nav>
-        <div style={{ marginTop: 'auto', padding: '8px 0 0 0', borderTop: '1px solid rgba(255, 255, 255, 0.2)' }}>
-          <button onClick={handleLogout} style={{ width: '100%', background: 'rgba(0, 0, 0, 0.2)', color: 'white', padding: '8px', fontSize: '0.9rem', border: 'none', borderRadius: '4px', cursor: 'pointer', fontFamily: 'inherit' }}>
-            Cerrar Sesión
-          </button>
-        </div>
+
       </aside>
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', backgroundColor: theme?.backgroundColor || '#f5f7fb', flex: 1, width: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', backgroundColor: theme?.backgroundColor || 'var(--color-background, #f5f7fb)', flex: 1, width: '100%' }}>
         <header style={{
           background: 'white',
           borderBottom: '1px solid #e2e8f0',
@@ -138,8 +125,27 @@ export default function MainLayout({ children }: Props) {
           display: 'flex',
           justifyContent: 'flex-end',
           alignItems: 'center',
-          minHeight: '60px'
+          minHeight: '60px',
+          gap: '12px'
         }}>
+          <NavLink
+            to="/notifications"
+            style={({ isActive }) => ({
+              textDecoration: 'none',
+              color: isActive ? (theme?.primaryColor || '#2563eb') : '#64748b',
+              fontSize: '1.2rem',
+              padding: '8px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'background 0.2s',
+              background: isActive ? '#eff6ff' : 'transparent'
+            })}
+            title="Notificaciones"
+          >
+            🔔
+          </NavLink>
           <button
             onClick={() => {
               const token = localStorage.getItem('token');
@@ -156,7 +162,7 @@ export default function MainLayout({ children }: Props) {
               window.location.href = portalUrl.toString();
             }}
             style={{
-              backgroundColor: theme?.primaryColor || '#667eea',
+              backgroundColor: theme?.primaryColor || 'var(--color-primary, #667eea)',
               color: 'white',
               padding: '8px 16px',
               fontSize: '0.9rem',

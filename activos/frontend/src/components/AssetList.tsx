@@ -54,8 +54,7 @@ export default function AssetList() {
 
   return (
     <div className="card">
-      <h2 style={{ marginBottom: '0.5rem', color: '#333', fontSize: '1.25rem' }}>{tableTitle}</h2>
-      <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#555' }}>{editingAsset ? 'Editar activo' : 'Crear activo'}</h3>
+      {editingAsset && <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: 'var(--color-primary, #555)' }}>Editar activo</h3>}
       <AssetForm
         onCreated={fetchAssets}
         assetToEdit={editingAsset}
@@ -63,6 +62,7 @@ export default function AssetList() {
         onCancel={handleCancelEdit}
       />
       <hr />
+      <h2 style={{ marginBottom: '0.5rem', color: 'var(--color-primary, #333)', fontSize: '1.25rem' }}>{tableTitle}</h2>
       {assets.length ? (
         <table>
           <thead>

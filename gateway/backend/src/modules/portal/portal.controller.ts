@@ -1,4 +1,7 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { PortalService } from './portal.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -121,8 +124,36 @@ export class PortalController {
       accentColor?: string;
       backgroundColor?: string;
       logoUrl?: string;
+      portalName?: string;
     },
   ) {
     return this.portalService.updateTheme(body);
+  }
+
+  /**
+   * Subir logo del portal
+   */
+  @Post('upload/logo')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: './public/uploads',
+      filename: (req, file, cb) => {
+        const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
+        return cb(null, `${randomName}${extname(file.originalname)}`);
+      },
+    }),
+  }))
+  async uploadLogo(@UploadedFile() file: Express.Multer.File) {
+    // Construir URL pública
+    // Nota: En producción, esto debería usar la URL base configurada
+    const protocol = process.env.PUBLIC_PROTOCOL || 'http';
+    const host = process.env.PUBLIC_HOST || 'localhost:3000';
+    const fileUrl = `${protocol}://${host}/public/uploads/${file.filename}`;
+
+    return {
+      url: fileUrl,
+      filename: file.filename,
+    };
   }
 }
