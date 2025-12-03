@@ -132,7 +132,7 @@ export default function UserForm({ onCreated, userToEdit, onUpdated, onCancel }:
         <div style={{
           display: 'grid',
           gridTemplateColumns: gridColumns,
-          gap: '15px',
+          gap: '10px',
           alignItems: 'start'
         }}>
           <label>
@@ -142,6 +142,7 @@ export default function UserForm({ onCreated, userToEdit, onUpdated, onCancel }:
               onChange={(e) => handleChange('name', e.target.value)}
               placeholder="Ej: Juan Pérez"
               required
+              style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}
             />
           </label>
           <label>
@@ -152,26 +153,53 @@ export default function UserForm({ onCreated, userToEdit, onUpdated, onCancel }:
               onChange={(e) => handleChange('email', e.target.value)}
               placeholder="Ej: juan.perez@empresa.com"
               required
+              style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}
             />
           </label>
           <label>
             Rol en la empresa
-            <select
-              value={form.roleId}
-              onChange={(e) => handleChange('roleId', e.target.value)}
-            >
-              <option value="">Sin rol asignado</option>
-              {roles.map((role) => (
-                <option key={role.id} value={role.id}>
-                  {role.name}
-                </option>
-              ))}
-            </select>
             {roles.length === 0 && (
               <small style={{ color: '#999', fontSize: '0.85rem', display: 'block', marginTop: '4px' }}>
                 No hay roles disponibles. Créalos primero en la sección de Roles.
               </small>
             )}
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <select
+                value={form.roleId}
+                onChange={(e) => handleChange('roleId', e.target.value)}
+                style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem', flex: 1 }}
+              >
+                <option value="">Sin rol asignado</option>
+                {roles.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={async () => {
+                  const name = prompt('Nombre del nuevo rol (ej. Administrador, Usuario):');
+                  if (name) {
+                    try {
+                      setLoading(true);
+                      const newRole = await roleService.create({ name });
+                      setRoles(prev => [...prev, newRole]);
+                      handleChange('roleId', newRole.id);
+                      setLoading(false);
+                    } catch (e) {
+                      console.error(e);
+                      setStatus('Error al crear rol'); // Reemplazar alert con setStatus
+                      setLoading(false);
+                    }
+                  }
+                }}
+                style={{ padding: '0.3rem 0.5rem', cursor: 'pointer', fontSize: '0.85rem' }}
+                title="Crear nuevo rol"
+              >
+                +
+              </button>
+            </div>
           </label>
         </div>
       </fieldset>

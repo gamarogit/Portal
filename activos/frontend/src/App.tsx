@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
-import { ThemeProvider } from '@contexts/ThemeContext';
 import MainLayout from '@components/MainLayout';
 import AssetsView from '@views/AssetsView';
 import MovementView from '@views/MovementView';
@@ -27,26 +26,24 @@ function App() {
 
   // Con token, mostrar aplicación
   return (
-    <ThemeProvider>
-      <MainLayout>
-        <Routes>
-          <Route path="/" element={<Navigate to="/assets" replace />} />
-          <Route path="/dashboard" element={<DashboardView />} />
-          <Route path="/assets" element={<AssetsView />} />
-          <Route path="/movements" element={<MovementView />} />
-          <Route path="/maintenance" element={<MaintenanceView />} />
-          <Route path="/reports" element={<ReportsView />} />
-          <Route path="/integrations" element={<IntegrationsView />} />
-          <Route path="/users" element={<UsersView />} />
-          <Route path="/roles" element={<RolesView />} />
-          <Route path="/licenses" element={<LicensesView />} />
-          <Route path="/vendors" element={<VendorsView />} />
-          <Route path="/notifications" element={<NotificationsView />} />
-          <Route path="/report-builder" element={<ReportBuilderView />} />
-          <Route path="/configuration" element={<ConfigurationView />} />
-        </Routes>
-      </MainLayout>
-    </ThemeProvider>
+    <MainLayout>
+      <Routes>
+        <Route path="/" element={<Navigate to="/assets" replace />} />
+        <Route path="/dashboard" element={<DashboardView />} />
+        <Route path="/assets" element={<AssetsView />} />
+        <Route path="/movements" element={<MovementView />} />
+        <Route path="/maintenance" element={<MaintenanceView />} />
+        <Route path="/reports" element={<ReportsView />} />
+        <Route path="/integrations" element={<IntegrationsView />} />
+        <Route path="/users" element={<UsersView />} />
+        <Route path="/roles" element={<RolesView />} />
+        <Route path="/licenses" element={<LicensesView />} />
+        <Route path="/vendors" element={<VendorsView />} />
+        <Route path="/notifications" element={<NotificationsView />} />
+        <Route path="/report-builder" element={<ReportBuilderView />} />
+        <Route path="/configuration" element={<ConfigurationView />} />
+      </Routes>
+    </MainLayout>
   );
 }
 

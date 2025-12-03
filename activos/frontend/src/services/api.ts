@@ -36,6 +36,7 @@ export interface AssetSummary {
   purchaseDate?: string;
   warrantyUntil?: string;
   notes?: string;
+  specs?: Record<string, any>;
 }
 
 export interface Movement {

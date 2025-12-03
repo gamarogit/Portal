@@ -1,10 +1,10 @@
-import { 
-  IsNotEmpty, 
-  IsOptional, 
-  IsUUID, 
-  IsNumber, 
-  IsString, 
-  Min, 
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsUUID,
+  IsNumber,
+  IsString,
+  Min,
   MaxLength,
   IsPositive,
   IsEnum,
@@ -68,9 +68,11 @@ export class UpdateAssetDto {
   @MaxLength(1000, { message: 'Las notas no pueden exceder 1000 caracteres' })
   notes?: string;
 
-  @IsOptional()
   @IsEnum(['ACTIVO', 'MANTENIMIENTO', 'DADO_DE_BAJA', 'TRANSFERIDO', 'CUARENTENA'], {
     message: 'Estado inválido'
   })
   state?: string;
+
+  @IsOptional()
+  specs?: any;
 }

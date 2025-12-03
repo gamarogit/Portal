@@ -11,8 +11,8 @@ body {
 }
 
 .app-shell {
-  display: grid;
-  grid-template-columns: 200px 1fr;
+  display: flex;
+  flex-direction: row;
   height: 100vh;
   overflow: hidden;
 }
@@ -26,6 +26,8 @@ aside {
   gap: 8px;
   height: 100vh;
   overflow-y: auto;
+  width: 240px;
+  flex-shrink: 0;
 }
 
 aside nav {
@@ -260,6 +262,7 @@ button {
   gap: 8px;
   font-weight: 600;
 }
+
 .helper-card {
   border: 1px dashed #cbd5f5;
   padding: 16px;

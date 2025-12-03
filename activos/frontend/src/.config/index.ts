@@ -120,6 +120,54 @@ export const formConfigs = {
     "type": "form",
     "title": "Formulario"
   },
+  "AssetList": {
+    "columns": [
+      {
+        "label": "Tipo",
+        "visible": true,
+        "order": 1,
+        "dataType": "text"
+      },
+      {
+        "label": "Activo",
+        "visible": true,
+        "order": 2,
+        "dataType": "text"
+      },
+      {
+        "label": "Ubicación",
+        "visible": true,
+        "order": 3,
+        "dataType": "text"
+      },
+      {
+        "label": "Responsable",
+        "visible": true,
+        "order": 4,
+        "dataType": "text"
+      },
+      {
+        "label": "Estado",
+        "visible": true,
+        "order": 5,
+        "dataType": "text"
+      },
+      {
+        "label": "Sistema operativo",
+        "visible": true,
+        "order": 6,
+        "dataType": "text"
+      },
+      {
+        "label": "Acciones",
+        "visible": true,
+        "order": 7,
+        "dataType": "action"
+      }
+    ],
+    "type": "table",
+    "title": "Tabla"
+  },
   "MainLayout": {
     "menuItems": [
       {

@@ -1,10 +1,10 @@
-import { 
-  IsNotEmpty, 
-  IsOptional, 
-  IsUUID, 
-  IsNumber, 
-  IsString, 
-  Min, 
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsUUID,
+  IsNumber,
+  IsString,
+  Min,
   MaxLength,
   IsPositive,
   IsDateString
@@ -66,5 +66,8 @@ export class CreateAssetDto {
   @IsString()
   @MaxLength(1000, { message: 'Las notas no pueden exceder 1000 caracteres' })
   notes?: string;
+
+  @IsOptional()
+  specs?: any;
 }
 

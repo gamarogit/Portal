@@ -1,6 +1,7 @@
 import { FormEvent, useState, useEffect, useMemo } from 'react';
 import { assetService, devService, AssetSummary, AssetType, Location, UserCatalog } from '@services/api';
 import { getFormConfig } from '@services/formConfig';
+import FieldReorderModal from './FieldReorderModal';
 
 type Props = {
   onCreated: () => void;
@@ -11,13 +12,121 @@ type Props = {
 
 import { useTheme } from '@contexts/ThemeContext';
 
+// Definición de atributos específicos por tipo de activo
+const ASSET_SPECS_CONFIG: Record<string, { label: string; key: string; type: 'text' | 'number' | 'select'; options?: string[] }[]> = {
+  'Computadora': [
+    { label: 'Procesador', key: 'processor', type: 'text' },
+    { label: 'RAM', key: 'ram', type: 'select', options: ['4GB', '8GB', '16GB', '32GB', '64GB'] },
+    { label: 'Almacenamiento', key: 'storage', type: 'text' },
+    { label: 'Hostname', key: 'hostname', type: 'text' },
+    { label: 'Dirección MAC', key: 'macAddress', type: 'text' },
+  ],
+  'Laptop': [
+    { label: 'Procesador', key: 'processor', type: 'text' },
+    { label: 'RAM', key: 'ram', type: 'select', options: ['4GB', '8GB', '16GB', '32GB', '64GB'] },
+    { label: 'Almacenamiento', key: 'storage', type: 'text' },
+    { label: 'Hostname', key: 'hostname', type: 'text' },
+    { label: 'Dirección MAC', key: 'macAddress', type: 'text' },
+    { label: 'Cargador', key: 'chargerIncluded', type: 'select', options: ['Sí', 'No'] },
+    { label: 'Serie Cargador', key: 'chargerSerialNumber', type: 'text' },
+  ],
+  'Celular': [
+    { label: 'IMEI', key: 'imei', type: 'text' },
+    { label: 'Número SIM', key: 'simNumber', type: 'text' },
+    { label: 'Operador', key: 'carrier', type: 'select', options: ['Telcel', 'Movistar', 'AT&T', 'Otro'] },
+    { label: 'Cargador', key: 'chargerIncluded', type: 'select', options: ['Sí', 'No'] },
+    { label: 'Serie Cargador', key: 'chargerSerialNumber', type: 'text' },
+  ],
+  'Tablet': [
+    { label: 'IMEI', key: 'imei', type: 'text' },
+    { label: 'Almacenamiento', key: 'storage', type: 'text' },
+    { label: 'Cargador', key: 'chargerIncluded', type: 'select', options: ['Sí', 'No'] },
+    { label: 'Serie Cargador', key: 'chargerSerialNumber', type: 'text' },
+  ],
+  'Monitor': [
+    { label: 'Pulgadas', key: 'inches', type: 'number' },
+    { label: 'Resolución', key: 'resolution', type: 'text' },
+    { label: 'Puertos', key: 'ports', type: 'text' },
+    { label: 'Cargador', key: 'chargerIncluded', type: 'select', options: ['Sí', 'No'] },
+    { label: 'Serie Cargador', key: 'chargerSerialNumber', type: 'text' },
+  ],
+  'Impresora': [
+    { label: 'Tipo', key: 'type', type: 'select', options: ['Láser', 'Inyección', 'Matriz', 'Térmica'] },
+    { label: 'Dirección IP', key: 'ipAddress', type: 'text' },
+    { label: 'Color', key: 'color', type: 'select', options: ['Sí', 'No'] },
+  ],
+  'Router': [
+    { label: 'IP Gestión', key: 'managementIp', type: 'text' },
+    { label: 'MAC Address', key: 'macAddress', type: 'text' },
+    { label: 'Puertos', key: 'ports', type: 'number' },
+    { label: 'Firmware', key: 'firmware', type: 'text' },
+  ],
+  'Switch': [
+    { label: 'IP Gestión', key: 'managementIp', type: 'text' },
+    { label: 'MAC Address', key: 'macAddress', type: 'text' },
+    { label: 'Puertos', key: 'ports', type: 'number' },
+    { label: 'PoE', key: 'poe', type: 'select', options: ['Sí', 'No'] },
+  ],
+  'Access Point': [
+    { label: 'IP Gestión', key: 'managementIp', type: 'text' },
+    { label: 'MAC Address', key: 'macAddress', type: 'text' },
+    { label: 'SSID', key: 'ssid', type: 'text' },
+    { label: 'Modelo', key: 'model', type: 'text' },
+  ],
+  'Firewall': [
+    { label: 'IP WAN', key: 'wanIp', type: 'text' },
+    { label: 'IP LAN', key: 'lanIp', type: 'text' },
+    { label: 'Throughput', key: 'throughput', type: 'text' },
+    { label: 'Licencia Hasta', key: 'licenseExpiration', type: 'text' },
+  ],
+  'Proyector': [
+    { label: 'Resolución', key: 'resolution', type: 'text' },
+    { label: 'Lúmenes', key: 'lumens', type: 'number' },
+    { label: 'Entradas', key: 'inputs', type: 'text' },
+  ],
+  'Pantalla': [
+    { label: 'Pulgadas', key: 'inches', type: 'number' },
+    { label: 'Resolución', key: 'resolution', type: 'text' },
+    { label: 'Smart TV', key: 'smartTv', type: 'select', options: ['Sí', 'No'] },
+  ],
+  'Videoconferencia': [
+    { label: 'Plataforma', key: 'platform', type: 'select', options: ['Zoom', 'Teams', 'Cisco', 'Polycom'] },
+    { label: 'IP', key: 'ipAddress', type: 'text' },
+    { label: 'Codec', key: 'codec', type: 'text' },
+  ],
+  'Silla': [
+    { label: 'Material', key: 'material', type: 'text' },
+    { label: 'Color', key: 'color', type: 'text' },
+    { label: 'Ergonómica', key: 'ergonomic', type: 'select', options: ['Sí', 'No'] },
+  ],
+  'Escritorio': [
+    { label: 'Dimensiones', key: 'dimensions', type: 'text' },
+    { label: 'Material', key: 'material', type: 'text' },
+    { label: 'Color', key: 'color', type: 'text' },
+  ],
+  'Automóvil': [
+    { label: 'Placa', key: 'plate', type: 'text' },
+    { label: 'VIN (Serie)', key: 'vin', type: 'text' },
+    { label: 'Marca', key: 'brand', type: 'text' },
+    { label: 'Modelo', key: 'model', type: 'text' },
+    { label: 'Año', key: 'year', type: 'number' },
+    { label: 'Póliza Seguro', key: 'insurancePolicy', type: 'text' },
+  ],
+  'VPN': [
+    { label: 'Endpoint (URL/IP)', key: 'endpoint', type: 'text' },
+    { label: 'Protocolo', key: 'protocol', type: 'select', options: ['IPsec', 'SSL/TLS', 'L2TP', 'WireGuard'] },
+    { label: 'Usuario VPN', key: 'vpnUser', type: 'text' },
+    { label: 'Grupo Acceso', key: 'accessGroup', type: 'text' },
+  ],
+};
+
 export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel }: Props) {
   const { theme } = useTheme();
   const [form, setForm] = useState({
-    name: '',
     assetTypeId: '',
-    locationId: '',
     responsibleId: '',
+    name: '',
+    locationId: '',
     serialNumber: '',
     manufacturer: '',
     model: '',
@@ -28,9 +137,12 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
     notes: '',
     state: 'ACTIVO',
   });
+
+  // Estado para atributos dinámicos
+  const [specs, setSpecs] = useState<Record<string, any>>({});
+
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showDevHelpers, setShowDevHelpers] = useState(false);
 
   // Catálogos
   const [assetTypes, setAssetTypes] = useState<AssetType[]>([]);
@@ -39,46 +151,33 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
 
   // Configuración de formulario
   const [formConfig, setFormConfig] = useState<any>(null);
-  const [formTitle, setFormTitle] = useState('Formulario de Activo');
 
+  // Cargar catálogos (Configuración desactivada manualmente por solicitud)
   useEffect(() => {
-    if (formConfig) {
-      // Cargar título si existe
-      if (formConfig.title) {
-        setFormTitle(formConfig.title);
-      }
-    }
-  }, [formConfig]);
-
-  // Cargar catálogos y configuración al montar
-  useEffect(() => {
+    setLoading(true);
     Promise.all([
       devService.listAssetTypes(),
       devService.listLocations(),
       devService.listUsers(),
-      getFormConfig('AssetForm'),
+      // getFormConfig('AssetForm'), // DESACTIVADO: Usar orden manual en código
     ])
-      .then(([types, locs, usrs, config]) => {
+      .then(([types, locs, usrs]) => {
         setAssetTypes(types);
         setLocations(locs);
         setUsers(usrs);
-        if (config) {
-          console.log('[AssetForm] Configuración cargada:', config);
-          setFormConfig(config);
-        } else {
-          console.log('[AssetForm] No hay configuración personalizada');
-        }
+        // setFormConfig(config); 
+        setLoading(false);
       })
       .catch((err) => {
         console.error('[AssetForm] Error al cargar:', err);
         setStatus('Error al cargar catálogos');
+        setLoading(false);
       });
   }, []);
 
   // Cargar datos del activo cuando se está editando
   useEffect(() => {
     if (assetToEdit) {
-      // Cargar datos completos al editar
       assetService.getOne(assetToEdit.id).then((asset) => {
         setForm({
           name: asset.name || '',
@@ -95,6 +194,12 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
           notes: asset.notes || '',
           state: asset.state || 'ACTIVO',
         });
+        // Cargar specs si existen
+        if (asset.specs) {
+          setSpecs(asset.specs as Record<string, any>);
+        } else {
+          setSpecs({});
+        }
       }).catch(() => {
         setStatus('Error al cargar el activo');
       });
@@ -114,18 +219,31 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
         notes: '',
         state: 'ACTIVO',
       });
+      setSpecs({});
     }
   }, [assetToEdit]);
 
   const handleChange = (field: keyof typeof form, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+    // Si cambia el tipo de activo, limpiar specs irrelevantes (opcional, por ahora mantenemos simple)
   };
 
-  const [helper, setHelper] = useState({ assetType: '', location: '', user: '' });
-  const [helperStatus, setHelperStatus] = useState<string | null>(null);
-  const enableDevHelpers =
-    import.meta.env.VITE_ENABLE_DEV_HELPERS === '1' || import.meta.env.DEV === true;
-  const [showExamples, setShowExamples] = useState(false);
+  const handleSpecChange = (key: string, value: any) => {
+    setSpecs(prev => ({ ...prev, [key]: value }));
+  };
+
+  // Determinar qué campos dinámicos mostrar basado en el tipo de activo seleccionado
+  const currentSpecsConfig = useMemo(() => {
+    if (!form.assetTypeId) return [];
+    const selectedType = assetTypes.find(t => t.id === form.assetTypeId);
+    if (!selectedType) return [];
+
+    // Buscar coincidencia parcial o exacta en el nombre del tipo
+    const typeName = selectedType.name;
+    const configKey = Object.keys(ASSET_SPECS_CONFIG).find(k => typeName.includes(k));
+
+    return configKey ? ASSET_SPECS_CONFIG[configKey] : [];
+  }, [form.assetTypeId, assetTypes]);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -138,88 +256,46 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
     try {
       const payload: any = {
         name: form.name.trim(),
+        specs: specs, // Incluir specs en el payload
       };
 
       // Solo agregar campos con valores válidos
-      if (form.assetTypeId && form.assetTypeId.trim()) {
-        payload.assetTypeId = form.assetTypeId.trim();
-      }
-      if (form.locationId && form.locationId.trim()) {
-        payload.locationId = form.locationId.trim();
-      }
-      if (form.responsibleId && form.responsibleId.trim()) {
-        payload.responsibleId = form.responsibleId.trim();
-      } else if (assetToEdit && form.responsibleId === '') {
-        payload.responsibleId = null;
-      }
-      if (form.serialNumber && form.serialNumber.trim()) {
-        payload.serialNumber = form.serialNumber.trim();
-      }
-      if (form.manufacturer && form.manufacturer.trim()) {
-        payload.manufacturer = form.manufacturer.trim();
-      }
-      if (form.model && form.model.trim()) {
-        payload.model = form.model.trim();
-      }
-      if (form.operatingSystem && form.operatingSystem.trim()) {
-        payload.operatingSystem = form.operatingSystem.trim();
-      }
-      if (form.cost && form.cost.trim()) {
-        payload.cost = Number(form.cost);
-      }
-      if (form.purchaseDate && form.purchaseDate.trim()) {
-        payload.purchaseDate = form.purchaseDate.trim();
-      }
-      if (form.warrantyUntil && form.warrantyUntil.trim()) {
-        payload.warrantyUntil = form.warrantyUntil.trim();
-      }
-      if (form.notes && form.notes.trim()) {
-        payload.notes = form.notes.trim();
-      }
-      if (form.state && form.state.trim()) {
-        payload.state = form.state.trim();
-      }
+      if (form.assetTypeId && form.assetTypeId.trim()) payload.assetTypeId = form.assetTypeId.trim();
+      if (form.locationId && form.locationId.trim()) payload.locationId = form.locationId.trim();
+      if (form.responsibleId && form.responsibleId.trim()) payload.responsibleId = form.responsibleId.trim();
+      else if (assetToEdit && form.responsibleId === '') payload.responsibleId = null;
+
+      if (form.serialNumber && form.serialNumber.trim()) payload.serialNumber = form.serialNumber.trim();
+      if (form.manufacturer && form.manufacturer.trim()) payload.manufacturer = form.manufacturer.trim();
+      if (form.model && form.model.trim()) payload.model = form.model.trim();
+      if (form.operatingSystem && form.operatingSystem.trim()) payload.operatingSystem = form.operatingSystem.trim();
+      if (form.cost && form.cost.trim()) payload.cost = Number(form.cost);
+      if (form.purchaseDate && form.purchaseDate.trim()) payload.purchaseDate = form.purchaseDate.trim();
+      if (form.warrantyUntil && form.warrantyUntil.trim()) payload.warrantyUntil = form.warrantyUntil.trim();
+      if (form.notes && form.notes.trim()) payload.notes = form.notes.trim();
+      if (form.state && form.state.trim()) payload.state = form.state.trim();
 
       if (assetToEdit) {
-        // Actualizar activo existente
         await assetService.update(assetToEdit.id, payload);
         setStatus('✓ Activo actualizado correctamente');
-        if (onUpdated) {
-          onUpdated();
-        }
+        if (onUpdated) onUpdated();
       } else {
-        // Crear nuevo activo
         await assetService.create(payload);
         setStatus('✓ Activo creado correctamente');
         onCreated();
       }
 
       if (!assetToEdit) {
-        setForm({
-          name: '',
-          assetTypeId: '',
-          locationId: '',
-          responsibleId: '',
-          serialNumber: '',
-          manufacturer: '',
-          model: '',
-          operatingSystem: '',
-          cost: '',
-          purchaseDate: '',
-          warrantyUntil: '',
-          notes: '',
-          state: 'ACTIVO',
-        });
+        setForm(prev => ({ ...prev, name: '', serialNumber: '', cost: '', notes: '' }));
+        setSpecs({});
       }
       onCreated();
     } catch (error: unknown) {
-      let message = 'Error al crear el activo (revisa IDs/servidor)';
+      let message = 'Error al guardar';
       if (error instanceof Error && 'response' in error) {
         const axiosError = error as any;
-        if (axiosError.response?.data?.message) {
-          message = axiosError.response.data.message;
-        }
-      } else if (error instanceof Error && error.message) {
+        message = axiosError.response?.data?.message || message;
+      } else if (error instanceof Error) {
         message = error.message;
       }
       setStatus(message);
@@ -228,243 +304,401 @@ export default function AssetForm({ onCreated, assetToEdit, onUpdated, onCancel 
     }
   };
 
-  const createHelper = async (type: 'assetType' | 'location' | 'user') => {
-    if (!helper[type].trim()) {
-      setHelperStatus('Ingresa el nombre del catalogo');
-      return;
-    }
-    try {
-      const result =
-        type === 'assetType'
-          ? await devService.createAssetType(helper[type])
-          : type === 'location'
-            ? await devService.createLocation(helper[type])
-            : await devService.createUser(helper[type]);
-      setHelperStatus(`${type} creado: ${result.id}`);
-      if (type === 'assetType') handleChange('assetTypeId', result.id);
-      if (type === 'location') handleChange('locationId', result.id);
-      if (type === 'user') handleChange('responsibleId', result.id);
-    } catch {
-      setHelperStatus('Error al crear catálogo; revisa si el backend está en marcha y los catálogos disponibles.');
-    }
-  };
-
-  const fillRandomUuids = () => {
-    const generator = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? () => crypto.randomUUID() : () => {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-        const r = (Math.random() * 16) | 0;
-        const v = c === 'x' ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-      });
-    };
-    setForm((prev) => ({
-      ...prev,
-      assetTypeId: generator(),
-      locationId: generator(),
-      responsibleId: generator(),
-    }));
-  };
-
-  const downloadCsv = (rows: Record<string, string>[], filename: string) => {
-    if (!rows.length) return;
-    const header = Object.keys(rows[0]).join(',');
-    const body = rows.map((row) => Object.values(row).join(',')).join('\n');
-    const blob = new Blob([`${header}\n${body}`], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
-  // Definir los campos del formulario con su orden predeterminado
+  // Definición de campos disponibles (ORDEN MANUAL DEFINIDO AQUÍ)
   const allFields = [
     {
-      name: 'name', order: 0, render: () => (
-        <label key="name">
-          <span style={{ fontWeight: 600 }}>Nombre</span>
-          <input value={form.name} onChange={(e) => handleChange('name', e.target.value)} placeholder="Laptop HP" required style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-        </label>
-      )
-    },
-    {
-      name: 'serialNumber', order: 1, render: () => (
-        <label key="serialNumber">
-          <span style={{ fontWeight: 600 }}>Serie</span>
-          <input value={form.serialNumber} onChange={(e) => handleChange('serialNumber', e.target.value)} placeholder="SN123" style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-        </label>
-      )
-    },
-    {
-      name: 'assetTypeId', order: 2, render: () => (
-        <label key="assetTypeId">
-          <span style={{ fontWeight: 600 }}>Tipo *</span>
-          <select value={form.assetTypeId} onChange={(e) => handleChange('assetTypeId', e.target.value)} required style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}>
-            <option value="">--</option>
-            {assetTypes.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+      name: 'assetTypeId',
+      label: 'Tipo de Activo',
+      render: () => (
+        <div key="assetTypeId" className="form-group">
+          <label>Tipo de Activo</label>
+          <select
+            name="assetTypeId"
+            value={form.assetTypeId}
+            onChange={(e) => handleChange('assetTypeId', e.target.value)}
+            required
+            style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}
+          >
+            <option value="">Seleccione un tipo</option>
+            {assetTypes.map(type => (
+              <option key={type.id} value={type.id}>{type.name}</option>
+            ))}
           </select>
-        </label>
+        </div>
       )
     },
     {
-      name: 'locationId', order: 3, render: () => (
-        <label key="locationId">
-          <span style={{ fontWeight: 600 }}>Ubicación</span>
-          <select value={form.locationId} onChange={(e) => handleChange('locationId', e.target.value)} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}>
-            <option value="">--</option>
-            {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+      name: 'manufacturer',
+      label: 'Fabricante',
+      render: () => (
+        <div key="manufacturer" className="form-group">
+          <label>Fabricante</label>
+          <input
+            type="text"
+            name="manufacturer"
+            value={form.manufacturer}
+            onChange={(e) => handleChange('manufacturer', e.target.value)}
+            style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}
+          />
+        </div>
+      )
+    },
+    {
+      name: 'name',
+      label: 'Nombre',
+      render: () => (
+        <div key="name" className="form-group">
+          <label>Nombre</label>
+          <input
+            type="text"
+            name="name"
+            value={form.name}
+            onChange={(e) => handleChange('name', e.target.value)}
+            required
+            style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}
+          />
+        </div>
+      )
+    },
+    {
+      name: 'model',
+      label: 'Modelo',
+      render: () => (
+        <div key="model" className="form-group">
+          <label>Modelo</label>
+          <input
+            type="text"
+            name="model"
+            value={form.model}
+            onChange={(e) => handleChange('model', e.target.value)}
+            style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}
+          />
+        </div>
+      )
+    },
+    {
+      name: 'serialNumber',
+      label: 'Número de Serie',
+      render: () => (
+        <div key="serialNumber" className="form-group">
+          <label>Número de Serie</label>
+          <input
+            type="text"
+            name="serialNumber"
+            value={form.serialNumber}
+            onChange={(e) => handleChange('serialNumber', e.target.value)}
+            style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}
+          />
+        </div>
+      )
+    },
+    {
+      name: 'locationId',
+      label: 'Ubicación',
+      render: () => (
+        <div key="locationId" className="form-group">
+          <label>Ubicación</label>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <select
+              name="locationId"
+              value={form.locationId}
+              onChange={(e) => handleChange('locationId', e.target.value)}
+              style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem', flex: 1 }}
+            >
+              <option value="">Seleccione una ubicación</option>
+              {locations.map(loc => (
+                <option key={loc.id} value={loc.id}>{loc.name}</option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={async () => {
+                const name = prompt('Nombre de la nueva ubicación:');
+                if (name) {
+                  try {
+                    setLoading(true);
+                    const newLoc = await devService.createLocation(name);
+                    setLocations(prev => [...prev, newLoc]);
+                    handleChange('locationId', newLoc.id);
+                    setLoading(false);
+                  } catch (e) {
+                    console.error(e);
+                    setStatus('Error al crear ubicación'); // Reemplazar alert con setStatus
+                    setLoading(false);
+                  }
+                }
+              }}
+              style={{ padding: '0.3rem 0.5rem', cursor: 'pointer', fontSize: '0.85rem' }}
+              title="Crear nueva ubicación"
+            >
+              +
+            </button>
+          </div>
+        </div>
+      )
+    },
+    {
+      name: 'responsibleId',
+      label: 'Responsable',
+      render: () => (
+        <div key="responsibleId" className="form-group">
+          <label>Responsable</label>
+          <select
+            name="responsibleId"
+            value={form.responsibleId || ''}
+            onChange={(e) => handleChange('responsibleId', e.target.value)}
+            style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}
+          >
+            <option value="">Seleccione un responsable</option>
+            {users.map(user => (
+              <option key={user.id} value={user.id}>{user.name}</option>
+            ))}
           </select>
-        </label>
+        </div>
       )
     },
     {
-      name: 'responsibleId', order: 4, render: () => (
-        <label key="responsibleId">
-          <span style={{ fontWeight: 600 }}>Responsable</span>
-          <select value={form.responsibleId} onChange={(e) => handleChange('responsibleId', e.target.value)} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}>
-            <option value="">-- Sin asignar --</option>
-            {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+      name: 'state',
+      label: 'Estado',
+      render: () => (
+        <div key="state" className="form-group">
+          <label>Estado</label>
+          <select
+            name="state"
+            value={form.state}
+            onChange={(e) => handleChange('state', e.target.value)}
+            style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}
+          >
+            <option value="NUEVO">Nuevo</option>
+            <option value="USADO">Usado</option>
+            <option value="DAÑADO">Dañado</option>
+            <option value="EN_REPARACION">En Reparación</option>
+            <option value="OBSOLETO">Obsoleto</option>
+            <option value="PERDIDO">Perdido</option>
           </select>
-        </label>
+        </div>
       )
     },
     {
-      name: 'operatingSystem', order: 5, render: () => (
-        <label key="operatingSystem">
-          <span style={{ fontWeight: 600 }}>Tipo</span>
-          <input value={form.operatingSystem} onChange={(e) => handleChange('operatingSystem', e.target.value)} placeholder="Windows 11" style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-        </label>
+      name: 'cost',
+      label: 'Costo',
+      render: () => (
+        <div key="cost" className="form-group">
+          <label>Costo</label>
+          <input
+            type="number"
+            name="cost"
+            value={form.cost || ''}
+            onChange={(e) => handleChange('cost', e.target.value)}
+            style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}
+          />
+        </div>
       )
     },
     {
-      name: 'manufacturer', order: 6, render: () => (
-        <label key="manufacturer">
-          <span style={{ fontWeight: 600 }}>Fabricante</span>
-          <input value={form.manufacturer} onChange={(e) => handleChange('manufacturer', e.target.value)} placeholder="HP" style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-        </label>
+      name: 'purchaseDate',
+      label: 'Fecha de Compra',
+      render: () => (
+        <div key="purchaseDate" className="form-group">
+          <label>Fecha de Compra</label>
+          <input
+            type="date"
+            name="purchaseDate"
+            value={form.purchaseDate ? new Date(form.purchaseDate).toISOString().split('T')[0] : ''}
+            onChange={(e) => handleChange('purchaseDate', e.target.value)}
+            style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}
+          />
+        </div>
       )
     },
     {
-      name: 'model', order: 7, render: () => (
-        <label key="model">
-          <span style={{ fontWeight: 600 }}>Modelo</span>
-          <input value={form.model} onChange={(e) => handleChange('model', e.target.value)} placeholder="ProBook 450" style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-        </label>
+      name: 'warrantyUntil',
+      label: 'Garantía Hasta',
+      render: () => (
+        <div key="warrantyUntil" className="form-group">
+          <label>Garantía Hasta</label>
+          <input
+            type="date"
+            name="warrantyUntil"
+            value={form.warrantyUntil ? new Date(form.warrantyUntil).toISOString().split('T')[0] : ''}
+            onChange={(e) => handleChange('warrantyUntil', e.target.value)}
+            style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}
+          />
+        </div>
       )
     },
     {
-      name: 'cost', order: 8, render: () => (
-        <label key="cost">
-          <span style={{ fontWeight: 600 }}>Costo</span>
-          <input type="number" min="0" step="0.01" value={form.cost} onChange={(e) => handleChange('cost', e.target.value)} placeholder="0" style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-        </label>
-      )
-    },
-    {
-      name: 'purchaseDate', order: 9, render: () => (
-        <label key="purchaseDate">
-          <span style={{ fontWeight: 600 }}>Compra</span>
-          <input type="date" value={form.purchaseDate} onChange={(e) => handleChange('purchaseDate', e.target.value)} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-        </label>
-      )
-    },
-    {
-      name: 'warrantyUntil', order: 10, render: () => (
-        <label key="warrantyUntil">
-          <span style={{ fontWeight: 600 }}>Garantía</span>
-          <input type="date" value={form.warrantyUntil} onChange={(e) => handleChange('warrantyUntil', e.target.value)} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-        </label>
-      )
-    },
-    {
-      name: 'state', order: 11, render: () => assetToEdit ? (
-        <label key="state">
-          <span style={{ fontWeight: 600 }}>Estado</span>
-          <select value={form.state} onChange={(e) => handleChange('state', e.target.value)} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}>
-            <option value="ACTIVO">Activo</option>
-            <option value="MANTENIMIENTO">Mantenimiento</option>
-            <option value="DADO_DE_BAJA">Baja</option>
-            <option value="TRANSFERIDO">Transferido</option>
-            <option value="CUARENTENA">Cuarentena</option>
-          </select>
-        </label>
-      ) : null
-    },
-    {
-      name: 'notes', order: 12, render: () => (
-        <label key="notes" style={{ gridColumn: '1 / -1' }}>
-          <span style={{ fontWeight: 600 }}>Notas</span>
-          <textarea value={form.notes} onChange={(e) => handleChange('notes', e.target.value)} placeholder="Observaciones..." rows={2} style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }} />
-        </label>
+      name: 'operatingSystem',
+      label: 'Sistema Operativo',
+      render: () => (
+        <div key="operatingSystem" className="form-group">
+          <label>Sistema Operativo</label>
+          <input
+            type="text"
+            name="operatingSystem"
+            value={form.operatingSystem || ''}
+            onChange={(e) => handleChange('operatingSystem', e.target.value)}
+            style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}
+          />
+        </div>
       )
     },
   ];
 
+
+
   // Aplicar orden personalizado si existe configuración
-  const orderedFields = useMemo(() => {
-    if (!formConfig?.fields) {
-      console.log('[AssetForm] Usando orden predeterminado');
-      return allFields;
-    }
+  // Calcular SOLO el orden de los nombres (strings), no los objetos completos con render functions
+  const orderedFieldNames = useMemo(() => {
+    // ORDEN MANUAL: Modificar el orden en el array 'allFields' arriba para cambiarlo.
+    // Aquí forzamos a usar siempre ese orden, ignorando cualquier config remota.
+    console.log('[AssetForm] Usando orden manual definido en código (allFields)');
+    return allFields.map(f => f.name);
+  }, [allFields]);
 
-    console.log('[AssetForm] Aplicando orden personalizado:', formConfig.fields.map((f: any) => `${f.name}:${f.order}`));
+  // Combinar el orden calculado con los campos frescos (con estado actualizado)
+  const orderedFieldsForRender = orderedFieldNames
+    .map(name => allFields.find(f => f.name === name))
+    .filter(f => f !== undefined) as typeof allFields;
 
-    return [...allFields].sort((a, b) => {
-      const configA = formConfig.fields.find((f: any) => f.name === a.name);
-      const configB = formConfig.fields.find((f: any) => f.name === b.name);
-      const orderA = configA?.order ?? 999;
-      const orderB = configB?.order ?? 999;
-      return orderA - orderB;
+  // Estado para modal de reordenamiento
+  const [isReorderModalOpen, setIsReorderModalOpen] = useState(false);
+
+  const handleConfigSaved = () => {
+    // Pequeño delay para asegurar que el backend haya procesado la escritura
+    setTimeout(() => {
+      console.log('[AssetForm] Recargando configuración tras guardado...');
+      getFormConfig('AssetForm').then(config => {
+        console.log('[AssetForm] Configuración recargada:', config);
+        if (config) {
+          setFormConfig(config);
+        } else {
+          console.warn('[AssetForm] Configuración recargada es null');
+        }
+      });
+    }, 500);
+  };
+
+  const handleForceRefresh = () => {
+    getFormConfig('AssetForm').then(config => {
+      alert(`Configuración recargada: ${config ? 'OK' : 'NULL'}`);
+      if (config) setFormConfig(config);
     });
-  }, [formConfig, assetTypes, locations, users, form, assetToEdit]);
+  };
+
+  // Extraer información de campos para el modal
+  const fieldsForModal = allFields.map(f => {
+    // Buscar orden actual
+    const currentOrder = orderedFieldNames.indexOf(f.name);
+
+    return {
+      name: f.name,
+      label: (f as any).label || f.name, // Usar label explícito
+      order: currentOrder !== -1 ? currentOrder : 999
+    };
+  });
+
+  const handleResetConfig = async () => {
+    if (!confirm('¿Estás seguro de restablecer el orden predeterminado? Se perderá tu configuración personalizada.')) return;
+
+    try {
+      // Enviar configuración vacía o null para borrar
+      // Asumimos que el backend maneja esto o simplemente guardamos un objeto vacío que activará el default en el frontend
+      const { default: api } = await import('@services/api');
+      await api.post('/form-config/AssetForm', { fields: [] }); // Guardar lista vacía
+
+      alert('Configuración restablecida. Recargando...');
+      handleForceRefresh();
+    } catch (e) {
+      console.error('Error al resetear:', e);
+      alert('Error al restablecer configuración');
+    }
+  };
+
+  const missingFields = useMemo(() => {
+    if (!formConfig?.fields) return [];
+    const configNames = new Set(formConfig.fields.map((f: any) => f.name));
+    return allFields.filter(f => !configNames.has(f.name)).map(f => f.label);
+  }, [formConfig, allFields]);
 
   return (
-    <form onSubmit={submit} style={{ marginBottom: '1rem', padding: '1rem', background: '#f9f9f9', borderRadius: '4px' }}>
-      {status && (
-        <div className={status.includes('✓') ? 'status success' : 'status error'} style={{ marginBottom: '0.5rem', padding: '0.4rem', fontSize: '0.85rem' }}>
-          {status}
+    <div className="card">
+      <form onSubmit={submit}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h3>{assetToEdit ? 'Editar Activo' : 'Nuevo Activo'}</h3>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button type="button" onClick={() => setIsReorderModalOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }} title="Reordenar campos">
+              ⚙️
+            </button>
+          </div>
         </div>
-      )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem', fontSize: '0.85rem' }}>
-        {orderedFields.map(field => field.render())}
-      </div>
-
-      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            padding: '0.4rem 0.8rem',
-            fontSize: '0.85rem',
-            backgroundColor: theme?.primaryColor || '#2563eb',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          {loading ? 'Guardando...' : assetToEdit ? 'Actualizar' : 'Crear'}
-        </button>
-        {assetToEdit && onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            style={{
-              padding: '0.4rem 0.8rem',
-              fontSize: '0.85rem',
-              background: 'transparent',
-              color: theme?.primaryColor || '#6c757d',
-              border: `1px solid ${theme?.primaryColor || '#6c757d'}`,
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Cancelar
-          </button>
+        {status && (
+          <div className={`alert ${status.includes('Error') ? 'alert-error' : 'alert-success'}`} style={{ marginBottom: '1rem' }}>
+            {status}
+          </div>
         )}
-      </div>
-    </form>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.5rem', fontSize: '0.85rem' }}>
+          {orderedFieldsForRender.map(field => field.render())}
+
+          {/* Renderizado de campos dinámicos (Specs) */}
+          {currentSpecsConfig.length > 0 && (
+            <div style={{ gridColumn: '1 / -1', marginTop: '0.5rem', borderTop: '1px solid #eee', paddingTop: '0.5rem' }}>
+              <h4>Especificaciones Técnicas</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.5rem' }}>
+                {currentSpecsConfig.map(spec => (
+                  <div key={spec.key} className="form-group">
+                    <label>{spec.label}</label>
+                    {spec.type === 'select' ? (
+                      <select
+                        value={specs?.[spec.key] || ''}
+                        onChange={(e) => handleSpecChange(spec.key, e.target.value)}
+                        style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}
+                      >
+                        <option value="">Seleccione...</option>
+                        {spec.options?.map(opt => (
+                          <option key={opt} value={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type={spec.type}
+                        value={specs?.[spec.key] || ''}
+                        onChange={(e) => handleSpecChange(spec.key, e.target.value)}
+                        style={{ width: '100%', padding: '0.3rem', fontSize: '0.85rem' }}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+          {onCancel && (
+            <button type="button" onClick={onCancel} className="btn-secondary" disabled={loading}>
+              Cancelar
+            </button>
+          )}
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? 'Guardando...' : (assetToEdit ? 'Actualizar' : 'Crear')}
+          </button>
+        </div>
+      </form>
+
+      <FieldReorderModal
+        isOpen={isReorderModalOpen}
+        onClose={() => setIsReorderModalOpen(false)}
+        formName="AssetForm"
+        currentFields={orderedFieldNames.map((name, index) => ({
+          name,
+          label: allFields.find(f => f.name === name)?.label || name,
+          order: index
+        }))}
+        onConfigSaved={handleConfigSaved}
+      />
+    </div>
   );
 }

@@ -28,6 +28,8 @@ export default function AdminRolesView({ embedded = false }: Props) {
         name: '',
         description: '',
     });
+    const [modalStatus, setModalStatus] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+    const [listStatus, setListStatus] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
     useEffect(() => {
         loadRoles();
@@ -39,7 +41,7 @@ export default function AdminRolesView({ embedded = false }: Props) {
             setRoles(response.data);
         } catch (error) {
             console.error('Error al cargar roles:', error);
-            alert('Error al cargar roles');
+            setListStatus({ type: 'error', text: 'Error al cargar roles' });
         } finally {
             setLoading(false);
         }
@@ -69,25 +71,31 @@ export default function AdminRolesView({ embedded = false }: Props) {
             name: '',
             description: '',
         });
+        setModalStatus(null);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setModalStatus(null);
         try {
             if (editingRole) {
                 // Editar rol
                 await api.put(`/auth/roles/${editingRole.id}`, formData);
-                alert('Rol actualizado correctamente');
+                setModalStatus({ type: 'success', text: 'Rol actualizado correctamente' });
             } else {
                 // Crear rol
                 await api.post('/auth/roles', formData);
-                alert('Rol creado correctamente');
+                setModalStatus({ type: 'success', text: 'Rol creado correctamente' });
+                setFormData({ name: '', description: '' }); // Limpiar formulario para permitir crear otro
             }
-            handleCloseModal();
             loadRoles();
+            // No cerramos el modal automáticamente para que el usuario vea el mensaje
         } catch (error: any) {
             console.error('Error al guardar rol:', error);
-            alert(error.response?.data?.message || 'Error al guardar rol');
+            setModalStatus({
+                type: 'error',
+                text: error.response?.data?.message || 'Error al guardar rol'
+            });
         }
     };
 
@@ -95,13 +103,17 @@ export default function AdminRolesView({ embedded = false }: Props) {
         if (!confirm(`¿Estás seguro de eliminar el rol "${role.name}"?`)) {
             return;
         }
+        setListStatus(null);
         try {
             await api.delete(`/auth/roles/${role.id}`);
-            alert('Rol eliminado correctamente');
+            setListStatus({ type: 'success', text: 'Rol eliminado correctamente' });
             loadRoles();
         } catch (error: any) {
             console.error('Error al eliminar rol:', error);
-            alert(error.response?.data?.message || 'Error al eliminar rol');
+            setListStatus({
+                type: 'error',
+                text: error.response?.data?.message || 'Error al eliminar rol'
+            });
         }
     };
 
@@ -150,6 +162,12 @@ export default function AdminRolesView({ embedded = false }: Props) {
                         >
                             + Nuevo Rol
                         </button>
+                    </div>
+                )}
+
+                {listStatus && (
+                    <div className={`mb-4 p-4 rounded-md ${listStatus.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                        {listStatus.text}
                     </div>
                 )}
 
@@ -225,6 +243,11 @@ export default function AdminRolesView({ embedded = false }: Props) {
                             </div>
                         </div>
                         <form onSubmit={handleSubmit} className="px-6 py-4 space-y-4">
+                            {modalStatus && (
+                                <div className={`p-3 rounded-md text-sm ${modalStatus.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                                    {modalStatus.text}
+                                </div>
+                            )}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Nombre del Rol
@@ -256,7 +279,7 @@ export default function AdminRolesView({ embedded = false }: Props) {
                                     onClick={handleCloseModal}
                                     className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition font-medium text-gray-700"
                                 >
-                                    Cancelar
+                                    {modalStatus?.type === 'success' ? 'Cerrar' : 'Cancelar'}
                                 </button>
                                 <button
                                     type="submit"

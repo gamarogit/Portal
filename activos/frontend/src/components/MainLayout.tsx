@@ -19,8 +19,8 @@ interface MenuItem {
 
 // Menú por defecto en caso de que no exista configuración
 const defaultMenuItems: MenuItem[] = [
-  { path: '/portal', label: 'Portal Sistemas', icon: '🏠', visible: true, order: 0 },
-  { path: '/portal/admin', label: 'Admin Portal', icon: '⚙️', visible: true, order: 1 },
+  // { path: '/portal', label: 'Portal Sistemas', icon: '🏠', visible: true, order: 0 },
+  //{ path: '/portal/admin', label: 'Admin Portal', icon: '⚙️', visible: true, order: 1 },
   { path: '/dashboard', label: 'Dashboard', icon: '📊', visible: true, order: 2 },
   { path: '/users', label: 'Usuarios', icon: '👥', visible: true, order: 3 },
   { path: '/roles', label: 'Roles', icon: '📋', visible: true, order: 4 },
@@ -130,7 +130,7 @@ export default function MainLayout({ children }: Props) {
           </button>
         </div>
       </aside>
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', backgroundColor: theme?.backgroundColor || '#f5f7fb' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', backgroundColor: theme?.backgroundColor || '#f5f7fb', flex: 1, width: '100%' }}>
         <header style={{
           background: 'white',
           borderBottom: '1px solid #e2e8f0',
@@ -183,7 +183,7 @@ export default function MainLayout({ children }: Props) {
             🏠 Portal Empresarial
           </button>
         </header>
-        <main style={{ flex: 1, overflow: 'auto', padding: '32px' }}>{children}</main>
+        <main style={{ flex: 1, overflow: 'auto', padding: '16px 24px' }}>{children}</main>
       </div>
     </div>
   );

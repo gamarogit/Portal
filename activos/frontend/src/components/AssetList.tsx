@@ -54,8 +54,8 @@ export default function AssetList() {
 
   return (
     <div className="card">
-      <h2 style={{ marginBottom: '1rem', color: '#333' }}>{tableTitle}</h2>
-      <h3>{editingAsset ? 'Editar activo' : 'Crear activo'}</h3>
+      <h2 style={{ marginBottom: '0.5rem', color: '#333', fontSize: '1.25rem' }}>{tableTitle}</h2>
+      <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#555' }}>{editingAsset ? 'Editar activo' : 'Crear activo'}</h3>
       <AssetForm
         onCreated={fetchAssets}
         assetToEdit={editingAsset}
@@ -67,8 +67,8 @@ export default function AssetList() {
         <table>
           <thead>
             <tr>
-              <th>Activo</th>
               <th>Tipo</th>
+              <th>Activo</th>
               <th>Ubicación</th>
               <th>Responsable</th>
               <th>Estado</th>
@@ -79,8 +79,8 @@ export default function AssetList() {
           <tbody>
             {assets.map((asset) => (
               <tr key={asset.id}>
-                <td>{asset.name}</td>
                 <td>{asset.assetType?.name ?? '—'}</td>
+                <td>{asset.name}</td>
                 <td>{asset.location?.name ?? 'Sin ubicación'}</td>
                 <td>{asset.responsible?.name ?? 'Sin responsable'}</td>
                 <td>{asset.state}</td>

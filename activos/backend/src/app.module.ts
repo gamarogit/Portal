@@ -30,6 +30,7 @@ import { QrModule } from './modules/qr/qr.module';
 import { ReportBuilderModule } from './modules/report-builder/report-builder.module';
 import { ConfigurationModule } from './modules/configuration/configuration.module';
 import { SchemaMigrationModule } from './modules/schema-migration/schema-migration.module';
+import { FormConfigModule } from './modules/form-config/form-config.module';
 
 const devImports = process.env.ENABLE_DEV_ROUTES === '1' ? [DevModule] : [];
 
@@ -87,7 +88,9 @@ const devImports = process.env.ENABLE_DEV_ROUTES === '1' ? [DevModule] : [];
     QrModule,
     ReportBuilderModule,
     ConfigurationModule,
+    ConfigurationModule,
     SchemaMigrationModule,
+    FormConfigModule,
     ...devImports,
   ],
 })

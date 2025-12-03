@@ -1,20 +1,9 @@
 // Servicio para aplicar configuraciones de formulario
 // Intenta primero cargar desde el archivo local generado
 
-interface FieldConfig {
-  name: string;
-  label: string;
-  type: string;
-  required: boolean;
-  order: number;
-  visible?: boolean;
-}
 
-interface FormConfig {
-  fields?: FieldConfig[];
-  layout?: string;
-  type?: string;
-}
+
+
 
 let localConfigs: any = null;
 let loadAttempted = false;
@@ -23,7 +12,7 @@ let loadAttempted = false;
 const loadLocalConfigs = async () => {
   if (loadAttempted) return localConfigs || {};
   loadAttempted = true;
-  
+
   try {
     // Importar el archivo generado si existe
     // @vite-ignore - Ignorar análisis de Vite para imports dinámicos
@@ -38,11 +27,22 @@ const loadLocalConfigs = async () => {
   }
 };
 
+
+
+import { getFormConfig as getRemoteConfig, FormConfig } from './formConfigApi';
+
+// Re-exportar tipos
+export type { FormConfig, FieldConfig } from './formConfigApi';
+
 export const getFormConfig = async (formName: string): Promise<FormConfig | null> => {
-  // Intentar cargar desde archivo local primero
+  // Intentar cargar desde API primero
+  const remoteConfig = await getRemoteConfig(formName);
+  if (remoteConfig) return remoteConfig;
+
+  // Fallback a configuración local
   const configs = await loadLocalConfigs();
   if (configs && configs[formName]) {
-    console.log(`[formConfig] Configuración encontrada para ${formName}`);
+    console.log(`[formConfig] Configuración local encontrada para ${formName}`);
     return configs[formName];
   }
 
@@ -50,8 +50,10 @@ export const getFormConfig = async (formName: string): Promise<FormConfig | null
   return null;
 };
 
-export const applyFieldOrder = <T extends { name?: string; [key: string]: any }>(
-  fields: T[], 
+export { saveFormConfig } from './formConfigApi';
+
+export const applyFieldOrder = <T extends { name?: string;[key: string]: any }>(
+  fields: T[],
   config: FormConfig | null
 ): T[] => {
   if (!config || !config.fields || config.fields.length === 0) {
