@@ -1,15 +1,6 @@
 import { useState, useEffect } from 'react';
-import { maintenanceService } from '@services/api';
+import { maintenanceService, AssetSummary } from '@services/api';
 import api from '@services/api';
-
-interface Asset {
-  id: string;
-  name: string;
-  serialNumber?: string;
-  assetType?: { name: string };
-  state: string;
-  responsible?: { name: string; email: string };
-}
 
 const emptyForm = {
   assetId: '',
@@ -24,11 +15,11 @@ export default function MaintenanceView() {
   const [loading, setLoading] = useState(false);
 
   // Asset Search State
-  const [assets, setAssets] = useState<Asset[]>([]);
-  const [filteredAssets, setFilteredAssets] = useState<Asset[]>([]);
+  const [assets, setAssets] = useState<AssetSummary[]>([]);
+  const [filteredAssets, setFilteredAssets] = useState<AssetSummary[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedAssetResponsible, setSelectedAssetResponsible] = useState<{ name: string; email: string } | null>(null);
+  const [selectedAssetResponsible, setSelectedAssetResponsible] = useState<{ name: string; email?: string } | null>(null);
 
   useEffect(() => {
     // Load assets for search
@@ -55,7 +46,7 @@ export default function MaintenanceView() {
     }
   }, [searchTerm, assets]);
 
-  const handleSelectAsset = (asset: Asset) => {
+  const handleSelectAsset = (asset: AssetSummary) => {
     setForm({ ...form, assetId: asset.id });
     setSearchTerm(`${asset.name} (${asset.serialNumber || 'Sin serie'})`);
     setSelectedAssetResponsible(asset.responsible || null);

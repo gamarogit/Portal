@@ -26,7 +26,7 @@ export interface AssetSummary {
   assetTypeId?: string;
   location?: { name: string };
   locationId?: string;
-  responsible?: { name: string };
+  responsible?: { name: string; email?: string };
   responsibleId?: string;
   serialNumber?: string;
   manufacturer?: string;
