@@ -1,87 +1,119 @@
 #!/bin/bash
 set -e
 
-PORTAL_ROOT="/Users/gilberto.amaro/GIT/Portal"
+PORTAL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export JWT_SECRET="super-secret-key-123"
 
-echo "🚀 Iniciando todos los servicios del portal..."
+# Colores
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+echo -e "${GREEN}🚀 Iniciando script de arranque y configuración del Portal...${NC}"
 echo ""
 
-# Gateway Backend
-echo "📦 Iniciando Gateway Backend (puerto 3000)..."
-(cd "$PORTAL_ROOT/gateway/backend" && npm run start:dev > /tmp/portal-gateway-backend.log 2>&1) &
-GATEWAY_PID=$!
+# 1. Verificación de Prerrequisitos
+echo -e "${YELLOW}🔍 Verificando prerrequisitos...${NC}"
+if ! command -v node &> /dev/null; then
+    echo -e "${RED}❌ Node.js no está instalado. Por favor instálalo para continuar.${NC}"
+    exit 1
+fi
+if ! command -v npm &> /dev/null; then
+    echo -e "${RED}❌ npm no está instalado. Por favor instálalo para continuar.${NC}"
+    exit 1
+fi
+echo -e "${GREEN}✅ Prerrequisitos encontrados.${NC}"
+echo ""
 
-sleep 2
+# Función para configurar un servicio
+setup_service() {
+    local service_name=$1
+    local path=$2
+    local port=$3
+    local type=$4 # backend o frontend
 
-# Gateway Frontend
-echo "🎨 Iniciando Gateway Frontend (puerto 5174)..."
-(cd "$PORTAL_ROOT/gateway/frontend" && npm run dev > /tmp/portal-gateway-frontend.log 2>&1) &
-PORTAL_PID=$!
+    echo -e "${YELLOW}⚙️  Configurando $service_name ($type)...${NC}"
 
-sleep 2
+    if [ ! -d "$path" ]; then
+        echo -e "${RED}❌ Directorio no encontrado: $path${NC}"
+        return
+    fi
 
-# Activos Backend
-echo "📦 Iniciando Activos Backend (puerto 3001)..."
-(cd "$PORTAL_ROOT/activos/backend" && npm run start:dev > /tmp/portal-activos-backend.log 2>&1) &
-ACTIVOS_BE_PID=$!
+    cd "$path"
 
-sleep 2
+    # Instalar dependencias si no existen
+    if [ ! -d "node_modules" ]; then
+        echo "   📦 Instalando dependencias..."
+        npm install
+    else
+        echo "   ✅ Dependencias ya instaladas."
+    fi
 
-# Activos Frontend
-echo "🎨 Iniciando Activos Frontend (puerto 3101)..."
-(cd "$PORTAL_ROOT/activos/frontend" && npm run dev > /tmp/portal-activos-frontend.log 2>&1) &
-ACTIVOS_FE_PID=$!
+    # Configurar .env si es backend y no existe
+    if [ "$type" == "backend" ] && [ ! -f ".env" ]; then
+        echo "   📝 Creando archivo .env..."
+        if [ -f ".env.example" ]; then
+            cp .env.example .env
+        else
+            # Crear un .env básico si no hay ejemplo
+            echo "PORT=$port" > .env
+            echo "DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/portal?schema=public\"" >> .env
+            echo "JWT_SECRET=\"super-secret-key-123\"" >> .env
+            echo "JWT_ISSUER=\"portal\"" >> .env
+            echo "JWT_AUDIENCE=\"portal-users\"" >> .env
+        fi
+        echo -e "   ${GREEN}✅ .env creado. ¡Revisa la configuración de base de datos!${NC}"
+    fi
 
-# Entrenamiento Backend
-echo "📦 Iniciando Entrenamiento Backend (puerto 3002)..."
-(cd "$PORTAL_ROOT/entrenamiento/backend" && npm run start:dev > /tmp/portal-entrenamiento-backend.log 2>&1) &
-ENTRENAMIENTO_BE_PID=$!
+    cd "$PORTAL_ROOT"
+}
 
-sleep 2
-
-# Entrenamiento Frontend
-echo "🎨 Iniciando Entrenamiento Frontend (puerto 3102)..."
-(cd "$PORTAL_ROOT/entrenamiento/frontend" && npm run dev > /tmp/portal-entrenamiento-frontend.log 2>&1) &
-ENTRENAMIENTO_FE_PID=$!
-
-sleep 2
-
-# Gastos Backend
-echo "📦 Iniciando Gastos Backend (puerto 3003)..."
-(cd "$PORTAL_ROOT/gastos/backend" && npm run start:dev > /tmp/portal-gastos-backend.log 2>&1) &
-GASTOS_BE_PID=$!
-
-sleep 2
-
-# Gastos Frontend
-echo "🎨 Iniciando Gastos Frontend (puerto 3103)..."
-(cd "$PORTAL_ROOT/gastos/frontend" && npm run dev > /tmp/portal-gastos-frontend.log 2>&1) &
-GASTOS_FE_PID=$!
+# 2. Configuración de Servicios
+setup_service "Gateway" "gateway/backend" "3000" "backend"
+setup_service "Gateway" "gateway/frontend" "5174" "frontend"
+setup_service "Activos" "activos/backend" "3001" "backend"
+setup_service "Activos" "activos/frontend" "3101" "frontend"
+setup_service "Entrenamiento" "entrenamiento/backend" "3002" "backend"
+setup_service "Entrenamiento" "entrenamiento/frontend" "3102" "frontend"
+setup_service "Gastos" "gastos/backend" "3003" "backend"
+setup_service "Gastos" "gastos/frontend" "3103" "frontend"
 
 echo ""
-echo "✅ Servicios iniciados:"
-echo "   Gateway Backend:  PID $GATEWAY_PID  - http://localhost:3000"
-echo "   Gateway Frontend: PID $PORTAL_PID   - http://localhost:5174"
-echo "   Activos Backend:  PID $ACTIVOS_BE_PID - http://localhost:3001"
-echo "   Activos Frontend: PID $ACTIVOS_FE_PID - http://localhost:3101"
-echo "   Entren. Backend:  PID $ENTRENAMIENTO_BE_PID - http://localhost:3002"
-echo "   Entren. Frontend: PID $ENTRENAMIENTO_FE_PID - http://localhost:3102"
-echo "   Gastos Backend:   PID $GASTOS_BE_PID - http://localhost:3003"
-echo "   Gastos Frontend:  PID $GASTOS_FE_PID - http://localhost:3103"
+echo -e "${GREEN}✅ Configuración completada.${NC}"
 echo ""
-echo "⏳ Esperando inicialización (10 segundos)..."
-sleep 10
+
+# 3. Inicio de Servicios
+echo -e "${GREEN}🚀 Iniciando servicios...${NC}"
+
+start_service() {
+    local name=$1
+    local path=$2
+    local cmd=$3
+    local logfile=$4
+    
+    echo "   Iniciando $name..."
+    (cd "$path" && $cmd > "$logfile" 2>&1) &
+    echo $! > "/tmp/${logfile##*/}.pid"
+}
+
+start_service "Gateway Backend" "gateway/backend" "npm run start:dev" "/tmp/portal-gateway-backend.log"
+start_service "Gateway Frontend" "gateway/frontend" "npm run dev" "/tmp/portal-gateway-frontend.log"
+
+start_service "Activos Backend" "activos/backend" "npm run start:dev" "/tmp/portal-activos-backend.log"
+start_service "Activos Frontend" "activos/frontend" "npm run dev" "/tmp/portal-activos-frontend.log"
+
+start_service "Entrenamiento Backend" "entrenamiento/backend" "npm run start:dev" "/tmp/portal-entrenamiento-backend.log"
+start_service "Entrenamiento Frontend" "entrenamiento/frontend" "npm run dev" "/tmp/portal-entrenamiento-frontend.log"
+
+start_service "Gastos Backend" "gastos/backend" "npm run start:dev" "/tmp/portal-gastos-backend.log"
+start_service "Gastos Frontend" "gastos/frontend" "npm run dev" "/tmp/portal-gastos-frontend.log"
+
 echo ""
-echo "📝 Ver logs:"
-echo "   tail -f /tmp/portal-gateway-backend.log"
-echo "   tail -f /tmp/portal-gateway-frontend.log"
-echo "   tail -f /tmp/portal-activos-backend.log"
-echo "   tail -f /tmp/portal-activos-frontend.log"
-echo "   tail -f /tmp/portal-entrenamiento-backend.log"
-echo "   tail -f /tmp/portal-entrenamiento-frontend.log"
-echo "   tail -f /tmp/portal-gastos-backend.log"
-echo "   tail -f /tmp/portal-gastos-frontend.log"
+echo -e "${GREEN}✅ Todos los servicios han sido iniciados en segundo plano.${NC}"
+echo "   Puedes monitorear los logs en /tmp/portal-*.log"
 echo ""
-echo "🛑 Detener servicios:"
-echo "   pkill -f 'nest|vite'"
+echo "   Gateway: http://localhost:5174"
+echo "   Activos: http://localhost:3101"
+echo ""
+echo "   Para detener todo: pkill -f 'nest|vite'"
