@@ -8,6 +8,8 @@ export class AuthService {
   constructor(private readonly prisma: PrismaService, private readonly jwtService: JwtService) { }
 
   async login(username: string, password: string) {
+    console.log('[AuthService] Login attempt:', { username, passwordLength: password?.length });
+
     // Buscar usuario por email o nombre
     const user = await this.prisma.user.findFirst({
       where: {
@@ -19,13 +21,18 @@ export class AuthService {
       include: { role: true },
     });
 
+    console.log('[AuthService] User found:', user ? 'YES' : 'NO');
+
     if (!user) {
       throw new UnauthorizedException('Usuario o contraseña incorrectos');
     }
 
     // Verificar contraseña
     if (user.password) {
+      console.log('[AuthService] Comparing passwords...');
       const isPasswordValid = await bcrypt.compare(password, user.password);
+      console.log('[AuthService] Password valid:', isPasswordValid);
+
       if (!isPasswordValid) {
         throw new UnauthorizedException('Usuario o contraseña incorrectos');
       }

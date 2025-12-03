@@ -216,19 +216,22 @@ export default function UserForm({ onCreated, userToEdit, onUpdated, onCancel }:
         >
           {loading ? 'Procesando…' : userToEdit ? 'Actualizar' : 'Crear'}
         </button>
-        {userToEdit && onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="ghost"
-            style={{
-              color: theme?.primaryColor || '#2563eb',
-              borderColor: theme?.primaryColor || '#cbd5f5'
-            }}
-          >
-            Cancelar
-          </button>
-        )}
+
+        <button
+          type="button"
+          onClick={() => {
+            if (onCancel) {
+              onCancel();
+            }
+          }}
+          className="ghost"
+          style={{
+            color: theme?.primaryColor || '#2563eb',
+            borderColor: theme?.primaryColor || '#cbd5f5'
+          }}
+        >
+          Cancelar
+        </button>
       </div>
       {status && <p className="status">{status}</p>}
     </form>
