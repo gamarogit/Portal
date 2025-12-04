@@ -13,6 +13,13 @@ NC='\033[0m' # No Color
 echo -e "${GREEN}🚀 Iniciando script de arranque y configuración del Portal...${NC}"
 echo ""
 
+# 0. Detener servicios previos
+echo -e "${YELLOW}🛑 Deteniendo servicios previos...${NC}"
+pkill -f 'nest|vite' || true
+sleep 2
+echo -e "${GREEN}✅ Servicios detenidos.${NC}"
+echo ""
+
 # 1. Verificación de Prerrequisitos
 echo -e "${YELLOW}🔍 Verificando prerrequisitos...${NC}"
 if ! command -v node &> /dev/null; then

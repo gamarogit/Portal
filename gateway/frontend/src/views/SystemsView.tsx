@@ -23,7 +23,13 @@ const SystemsView: React.FC = () => {
   const loadSystems = async () => {
     try {
       const data = await systemsService.getAll();
-      setSystems(data.filter((s: PortalSystem) => s.enabled).sort((a, b) => a.order - b.order));
+      setSystems(
+        data
+          .filter((s: PortalSystem) =>
+            s.enabled && ['Activos', 'Entrenamiento', 'Gastos'].includes(s.name)
+          )
+          .sort((a, b) => a.order - b.order)
+      );
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al cargar los sistemas');
     } finally {

@@ -1,78 +1,41 @@
-
-import { useEffect, useState } from 'react';
+import React from 'react';
 
 function App() {
-    const [theme, setTheme] = useState({
-        primaryColor: '#667eea',
-        secondaryColor: '#764ba2',
-        backgroundColor: '#ffffff',
-        fontFamily: 'Montserrat'
-    });
-
-    const loadFont = (fontFamily: string) => {
-        const linkId = 'dynamic-font-link';
-        let link = document.getElementById(linkId) as HTMLLinkElement;
-
-        if (!link) {
-            link = document.createElement('link');
-            link.id = linkId;
-            link.rel = 'stylesheet';
-            document.head.appendChild(link);
-        }
-
-        const fontMap: Record<string, string> = {
-            'Montserrat': 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap',
-            'Roboto': 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap',
-            'Open Sans': 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap',
-            'Lato': 'https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap',
-            'Inter': 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap',
-        };
-
-        const fontUrl = fontMap[fontFamily];
-        if (fontUrl) {
-            link.href = fontUrl;
-        }
-    };
-
-    useEffect(() => {
-        fetch('/api/portal/theme')
-            .then(res => res.json())
-            .then(data => {
-                if (data) {
-                    setTheme(data);
-                    if (data.fontFamily) {
-                        loadFont(data.fontFamily);
-                    }
-                }
-            })
-            .catch(err => console.error('Error loading theme:', err));
-    }, []);
-
     return (
-        <div style={{ padding: '20px', fontFamily: theme.fontFamily ? `"${theme.fontFamily}", sans-serif` : 'sans-serif', backgroundColor: theme.backgroundColor, minHeight: '100vh' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h1 style={{ margin: 0, color: theme.primaryColor }}>🎓 Módulo de Entrenamiento</h1>
-                <button
-                    onClick={() => window.location.href = `http://${window.location.hostname}:5174`}
-                    style={{
-                        backgroundColor: theme.primaryColor,
-                        color: 'white',
-                        border: 'none',
-                        padding: '10px 20px',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        fontSize: '16px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                        fontFamily: 'inherit'
-                    }}
-                >
-                    🏠 Portal Empresarial
-                </button>
+        <div style={{
+            minHeight: '100vh',
+            fontFamily: 'sans-serif',
+            backgroundColor: '#f0f2f5',
+            color: '#333'
+        }}>
+            <div style={{ padding: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+                <a href={`${window.location.protocol}//${window.location.hostname}:5174`} style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    backgroundColor: '#0f3d56',
+                    color: 'white',
+                    padding: '10px 20px',
+                    borderRadius: '8px',
+                    textDecoration: 'none',
+                    fontWeight: 'bold',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}>
+                    <span style={{ fontSize: '1.2rem' }}>🏠</span>
+                    Portal Empresarial
+                </a>
             </div>
-            <p>Bienvenido al sistema de gestión de entrenamiento.</p>
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: 'calc(100vh - 100px)'
+            }}>
+                <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎓 Entrenamiento</h1>
+                <p style={{ fontSize: '1.5rem' }}>Este módulo está en construcción.</p>
+                <p>Pronto podrás gestionar tus capacitaciones aquí.</p>
+            </div>
         </div>
     );
 }

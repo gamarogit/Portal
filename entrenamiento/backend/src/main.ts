@@ -1,20 +1,20 @@
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { AppModule } from './app.module';
+import express from 'express';
+import cors from 'cors';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    cors: {
-      origin: ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:3102'],
-      credentials: true,
-    },
-  });
+const app = express();
+const port = 3002;
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+app.use(cors());
+app.use(express.json());
 
-  const port = process.env.PORT || 3002;
-  await app.listen(port);
-  console.log(`🎓 Entrenamiento Backend running on http://localhost:${port}`);
-}
+app.get('/', (req, res) => {
+    res.send('Entrenamiento Service is running');
+});
 
-bootstrap();
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok' });
+});
+
+app.listen(port, () => {
+    console.log(`Entrenamiento backend listening at http://localhost:${port}`);
+});

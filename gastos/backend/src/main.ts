@@ -1,20 +1,20 @@
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { AppModule } from './app.module';
+import express from 'express';
+import cors from 'cors';
 
-async function bootstrap() {
-    const app = await NestFactory.create(AppModule, {
-        cors: {
-            origin: ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:3103'],
-            credentials: true,
-        },
-    });
+const app = express();
+const port = 3003;
 
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+app.use(cors());
+app.use(express.json());
 
-    const port = process.env.PORT || 3003;
-    await app.listen(port);
-    console.log(`💰 Gastos Backend running on http://localhost:${port}`);
-}
+app.get('/', (req, res) => {
+    res.send('Gastos Service is running');
+});
 
-bootstrap();
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok' });
+});
+
+app.listen(port, () => {
+    console.log(`Gastos backend listening at http://localhost:${port}`);
+});
