@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '@services/api';
 
 export default function LoginView() {
-  const [email, setEmail] = useState('admin@portal.com');
+  const [email, setEmail] = useState('admin@activos.com');
   const [password, setPassword] = useState('admin123');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -62,7 +62,8 @@ export default function LoginView() {
     setLoading(true);
 
     try {
-      const res = await api.post('/auth/login', { email, password });
+      // Backend expects 'username', but we use 'email' in the form
+      const res = await api.post('/auth/login', { username: email, password });
       updateToken(res.data.access_token);
       window.location.href = '/dashboard';
     } catch (err: any) {
@@ -112,7 +113,7 @@ export default function LoginView() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
-              placeholder="admin@portal.com"
+              placeholder="admin@activos.com"
               style={{
                 width: '100%',
                 padding: '0.75rem',
@@ -161,7 +162,7 @@ export default function LoginView() {
           </button>
         </form>
         <p style={{ textAlign: 'center', marginTop: '1.5rem', color: theme.secondaryColor, fontSize: '0.9rem' }}>
-          💡 Credenciales por defecto: admin@portal.com / admin123
+          💡 Credenciales por defecto: admin@activos.com / admin123
         </p>
       </div>
     </div>

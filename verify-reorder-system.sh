@@ -13,9 +13,9 @@ echo ""
 
 # 1. Login y obtener token
 echo "1️⃣ Obteniendo token de autenticación..."
-TOKEN=$(curl -s -X POST http://localhost:3000/api/auth/login \
+TOKEN=$(curl -s -X POST http://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@portal.com","password":"admin123"}' | jq -r '.access_token')
+  -d '{"username":"admin@activos.com","password":"admin123"}' | jq -r '.access_token')
 
 if [ -z "$TOKEN" ] || [ "$TOKEN" == "null" ]; then
     echo -e "${RED}❌ Error: No se pudo obtener el token${NC}"

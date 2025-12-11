@@ -13,11 +13,24 @@ NC='\033[0m' # No Color
 echo -e "${GREEN}🚀 Iniciando script de arranque y configuración del Portal...${NC}"
 echo ""
 
+<<<<<<< Updated upstream
 # 0. Detener servicios previos
 echo -e "${YELLOW}🛑 Deteniendo servicios previos...${NC}"
 pkill -f 'nest|vite' || true
 sleep 2
 echo -e "${GREEN}✅ Servicios detenidos.${NC}"
+=======
+# 0. Limpieza de procesos anteriores
+echo -e "${YELLOW}🧹 Limpiando procesos anteriores...${NC}"
+PIDS=$(lsof -ti :3000,5174 2>/dev/null || true)
+if [ -n "$PIDS" ]; then
+    echo "   Matando procesos: $PIDS"
+    kill -9 $PIDS || true
+    echo -e "${GREEN}   ✅ Procesos eliminados.${NC}"
+else
+    echo "   ✅ Puertos libres."
+fi
+>>>>>>> Stashed changes
 echo ""
 
 # 1. Verificación de Prerrequisitos
@@ -43,11 +56,22 @@ setup_service() {
     echo -e "${YELLOW}⚙️  Configurando $service_name ($type)...${NC}"
 
     if [ ! -d "$path" ]; then
-        echo -e "${RED}❌ Directorio no encontrado: $path${NC}"
+        echo -e "${YELLOW}⚠️  Saltando $service_name: directorio no encontrado ($path)${NC}"
+        return
+    fi
+    
+    if [ ! -f "$path/package.json" ]; then
+        echo -e "${YELLOW}⚠️  Saltando $service_name: package.json no encontrado.${NC}"
         return
     fi
 
     cd "$path"
+
+    if [ ! -f "package.json" ]; then
+        echo -e "${YELLOW}⚠️  Saltando $service_name ($type): package.json no encontrado.${NC}"
+        cd "$PORTAL_ROOT"
+        return
+    fi
 
     # Instalar dependencias si no existen
     if [ ! -d "node_modules" ]; then
@@ -79,8 +103,8 @@ setup_service() {
 # 2. Configuración de Servicios
 setup_service "Gateway" "gateway/backend" "3000" "backend"
 setup_service "Gateway" "gateway/frontend" "5174" "frontend"
-setup_service "Activos" "activos/backend" "3001" "backend"
-setup_service "Activos" "activos/frontend" "3101" "frontend"
+setup_service "Activos" "activos/backend" "3000" "backend"
+setup_service "Activos" "activos/frontend" "5174" "frontend"
 setup_service "Entrenamiento" "entrenamiento/backend" "3002" "backend"
 setup_service "Entrenamiento" "entrenamiento/frontend" "3102" "frontend"
 setup_service "Gastos" "gastos/backend" "3003" "backend"
@@ -99,6 +123,16 @@ start_service() {
     local cmd=$3
     local logfile=$4
     
+    if [ ! -d "$path" ]; then
+        echo -e "${YELLOW}⚠️  Saltando $name: directorio no encontrado ($path)${NC}"
+        return
+    fi
+
+    if [ ! -f "$path/package.json" ]; then
+        echo -e "${YELLOW}⚠️  Saltando $name: package.json no encontrado.${NC}"
+        return
+    fi
+
     echo "   Iniciando $name..."
     (cd "$path" && $cmd > "$logfile" 2>&1) &
     echo $! > "/tmp/${logfile##*/}.pid"
@@ -120,7 +154,7 @@ echo ""
 echo -e "${GREEN}✅ Todos los servicios han sido iniciados en segundo plano.${NC}"
 echo "   Puedes monitorear los logs en /tmp/portal-*.log"
 echo ""
-echo "   Gateway: http://localhost:5174"
-echo "   Activos: http://localhost:3101"
+# echo "   Gateway: http://localhost:5174"
+echo "   Activos: http://localhost:5174"
 echo ""
 echo "   Para detener todo: pkill -f 'nest|vite'"

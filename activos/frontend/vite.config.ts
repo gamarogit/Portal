@@ -13,7 +13,7 @@ export default defineConfig({
     ],
   },
   server: {
-    port: 3101,
+    port: 5174,
     strictPort: true,
     host: '0.0.0.0',
     hmr: {
@@ -24,18 +24,8 @@ export default defineConfig({
       ignored: ['**/node_modules/**', '**/.git/**'],
     },
     proxy: {
-      '/api/auth': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/api/portal': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-        secure: false,
-      },
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ''),
