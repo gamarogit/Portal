@@ -14,12 +14,15 @@ echo -e "${GREEN}🚀 Iniciando script de arranque y configuración del Portal..
 echo ""
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 # 0. Detener servicios previos
 echo -e "${YELLOW}🛑 Deteniendo servicios previos...${NC}"
 pkill -f 'nest|vite' || true
 sleep 2
 echo -e "${GREEN}✅ Servicios detenidos.${NC}"
 =======
+=======
+>>>>>>> Stashed changes
 # 0. Limpieza de procesos anteriores
 echo -e "${YELLOW}🧹 Limpiando procesos anteriores...${NC}"
 PIDS=$(lsof -ti :3000,5174 2>/dev/null || true)
@@ -30,6 +33,9 @@ if [ -n "$PIDS" ]; then
 else
     echo "   ✅ Puertos libres."
 fi
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 echo ""
 
