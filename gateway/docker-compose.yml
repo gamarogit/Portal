@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # Base de datos compartida
+  postgres:
+    image: postgres:15-alpine
+    container_name: activos-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: portal
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis para cache/sesiones
+  redis:
+    image: redis:7-alpine
+    container_name: activos-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Gateway (Portal Backend)
+  gateway:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: activos-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/portal
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      REDIS_URL: redis://redis:6379
+      ACTIVOS_API: http://activos-backend:3001
+      ENTRENAMIENTO_API: http://entrenamiento-backend:3002
+      GASTOS_API: http://gastos-backend:3003
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: npm run start:dev
+
+  # Portal Frontend (Shell)
+  portal-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: activos-portal-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:3000/api
+    depends_on:
+      - gateway
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev -- --host
+
+  # Sistema Activos (configurar después en otro repositorio)
+  # activos-backend:
+  #   build:
+  #     context: ../activos-sistema/backend
+  #   container_name: activos-backend
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     DATABASE_URL: postgresql://postgres:postgres@postgres:5432/activos
+  #     JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+  #     PORT: 3001
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+
+  # activos-frontend:
+  #   build:
+  #     context: ../activos-sistema/frontend
+  #   container_name: activos-frontend
+  #   ports:
+  #     - "3101:3101"
+  #   environment:
+  #     VITE_API_URL: http://localhost:3001/api
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: activos-network
